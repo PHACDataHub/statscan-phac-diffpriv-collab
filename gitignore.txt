@@ -1,0 +1,10 @@
+#Ignore universe
+*
+#Except these
+!.gitignore
+!notebooks
+!src
+!docs
+!data
+!LICENSE.md
+!README.md
