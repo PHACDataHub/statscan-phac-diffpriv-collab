@@ -1,7 +1,9 @@
 import argparse
 import logging
+from tqdm import tqdm
+import json
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Dict
 
 import pandas as pd
 import numpy as np
@@ -173,6 +175,122 @@ class LocalDifferentialPrivacy:
         return df.progress_apply(self.apply_local_dp)
 
 
+    def apply_query_to_list(
+        self,
+        list_to_be_aggregated: List[Union[str, int, float]],
+        query_type: str,
+        variable_type: str = "float",
+    ) -> Union[float, dict]:
+        """
+        Apply appropriate query function to a given list
+        of data based on its data type and query type.
+
+        Parameters:
+        - list_to_be_aggregated: A list representing the data.
+        - query_type: Type of query ('sum', 'mean', 'frequency', ...).
+        - variable_type: Type of variable ('float', 'int', etc.).
+
+        Returns:
+        - result: The query result as a dictionary.
+        """
+
+        # Check if the query type is sum or mean
+        if query_type in ["sum", "mean"]:
+            # If the variable type is category, handle aggregation for categorical data
+            if variable_type == "category":
+                # Create a mapping from categories to numeric values
+                category_mapping, numeric_list = self.map_categories(
+                    list_to_be_aggregated
+                )
+
+                # Calculate category sums or means based on the query type
+                if query_type == "sum":
+                    category_sums = np.bincount(numeric_list)
+                    result_dict = {
+                        category: category_sums[i]
+                        for category, i in category_mapping.items()
+                    }
+                    return result_dict
+                elif query_type == "mean":
+                    category_means = (
+                        np.bincount(numeric_list) / np.bincount(numeric_list).sum()
+                    )
+                    result_dict = {
+                        category: category_means[i]
+                        for category, i in category_mapping.items()
+                    }
+                    return result_dict
+
+            # If the variable type is float or int, handle aggregation for numerical data
+            elif variable_type in ["float", "int"]:
+                if query_type == "sum":
+                    return np.sum(list_to_be_aggregated)
+                elif query_type == "mean":
+                    return np.mean(list_to_be_aggregated)
+            else:
+                raise ValueError("Unsupported variable type")
+
+        # If the query type is frequency, handle frequency aggregation
+        elif query_type == "frequency":
+            if variable_type == "category":
+                return dict(pd.Series(list_to_be_aggregated).value_counts())
+            else:
+                return float("NaN")
+        else:
+            raise ValueError("Unsupported query type")
+
+    def apply_query_to_df(
+        self, df: pd.DataFrame, query_type: str
+    ) -> Dict[str, Union[float, dict]]:
+        """
+        Apply appropriate query function to an entire dataframe.
+
+        Parameters:
+        - df: The input dataframe.
+        - query_type: Type of query ('sum', 'mean', 'frequency', ...).
+
+        Returns:
+        - agg_result: The query result as a dataframe.
+        """
+        # Use tqdm to display a progress bar with a description
+        tqdm_columns = tqdm(
+            df.columns, desc=f"Applying query '{query_type}' to dataframe"
+        )
+
+        agg_result = {
+            column: self.apply_query_to_list(
+                df[column].values, query_type, df[column].dtype
+            )
+            for column in tqdm_columns
+        }
+        return agg_result
+    
+    def map_categories(
+        self, list_to_be_aggregated: List[Union[str, int, float]]
+    ) -> Tuple[Dict[Union[str, int, float], int], np.ndarray]:
+        """
+        Create a mapping from categories to numeric values.
+
+        Parameters:
+        - list_to_be_aggregated: A list containing categories to be mapped.
+
+        Returns:
+        - category_mapping: A dictionary mapping categories to numeric values.
+        - numeric_list: An array representing the numeric values corresponding to each category.
+        """
+        # Create a mapping from categories to numeric values
+        category_mapping = {
+            category: i for i, category in enumerate(set(list_to_be_aggregated))
+        }
+
+        # Map the categorical list to numeric values
+        numeric_list = np.array(
+            [category_mapping[category] for category in list_to_be_aggregated]
+        )
+
+        return category_mapping, numeric_list
+
+
 def main():
     np.random.seed(42)
     
@@ -185,9 +303,18 @@ def main():
         type=float,
         help="Probability parameter for randomized response",
     )
+    parser.add_argument(
+        "--query_type",
+        type=str,
+        help="Query to be executed on the dataset. \
+                        Accepted queries are sum, mean and frequency",
+    )
     parser.add_argument("--input_csv", type=str, help="Path to the input CSV file")
     parser.add_argument(
         "--output_csv", type=str, help="Path to save the output CSV file"
+    )
+    parser.add_argument(
+        "--output_json", type=str, help="Path to save the output JSON file"
     )
 
     args = parser.parse_args()
@@ -241,6 +368,28 @@ def main():
         print(f"Transformed data saved to {args.output_csv}")
     except Exception as e:
         logging.error(f"Error saving the output CSV file: {e}")
+        return
+
+    try:
+        query_result = privacy.apply_query_to_df(df, args.query_type)
+        noisy_result = privacy.apply_query_to_df(df_transformed, args.query_type)
+    except Exception as e:
+        logging.error(f"Error applying query functions: {e}")
+        return
+
+    try:
+        with open("query_result.json", "w") as fp:
+            json.dump(query_result, fp, default=int)
+    except Exception as e:
+        logging.error(f"Error saving the query result JSON file: {e}")
+        return
+
+    try:
+        with open(args.output_json, "w") as fp:
+            json.dump(noisy_result, fp, default=int)
+        print(f"Transformed data saved at {args.output_json}")
+    except Exception as e:
+        logging.error(f"Error saving the output JSON file: {e}")
         return
 
 
