@@ -261,6 +261,9 @@ def main():
     )
     parser.add_argument("--input_csv", type=str, help="Path to the input CSV file")
     parser.add_argument(
+        "--group_by", type=str, help="Categorical Column to group by"
+    )
+    parser.add_argument(
         "--output_json", type=str, help="Path to save the output JSON file"
     )
 
@@ -303,10 +306,21 @@ def main():
     df[columns_to_convert] = df[columns_to_convert].astype("category")
 
     privacy = GlobalDifferentialPrivacy(args.scale)
-
+    query_result = {}
+    noisy_result = {}
+    print(args.group_by)
     try:
-        query_result = privacy.apply_query_to_df(df, args.query_type)
-        noisy_result = privacy.apply_global_dp(query_result)
+        if(not args.group_by):
+            query_result = privacy.apply_query_to_df(df, args.query_type)
+            noisy_result = privacy.apply_global_dp(query_result)
+        else:
+            dfg = df.groupby(args.group_by)
+            for val, dff in dfg:
+                q_result = privacy.apply_query_to_df(dff, args.query_type)
+                query_result.update({args.group_by + '_GROUP' + str(val):q_result})
+                n_result = privacy.apply_global_dp(q_result)
+                noisy_result.update({args.group_by + '_GROUP' + str(val):n_result})
+
     except Exception as e:
         logging.error(f"Error applying global differential privacy: {e}")
         return
