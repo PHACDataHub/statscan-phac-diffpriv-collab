@@ -1,3 +1,10 @@
+"""
+Paper used for implementation:
+- Title: Applying the Shuffle Model of Differential Privacy to Vector Aggregation
+- Authors: Mary Scott, Graham Cormode, Carsten Maple
+- Link: https://arxiv.org/pdf/2112.05464v3.pdf
+"""
+
 import argparse
 import logging
 import math
