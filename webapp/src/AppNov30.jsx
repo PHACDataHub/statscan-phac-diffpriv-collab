@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
-import HealthSurveyForm from '../components/HealthSurveyForm';
-import { addLaplaceNoise, addDpGaussianNoise } from './noiseFunctions';
-import SurveyResults from './SurveyResults';
+import HealthSurveyForm from './components/HealthSurveyForm';
+import { generateNoisyObject } from './utility/generateNoisyObject';
+import SurveyResults from './components/SurveyResultsNov30';
 import './App.css';
 
 const App = () => {
+  console.log("hello")
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
   const [noiseType, setNoiseType] = useState('laplace');
@@ -15,20 +16,15 @@ const App = () => {
   const handleFormSubmit = (formData) => {
     setSubmittedData(formData);
 
-    const noiseFunction =
-      noiseType === 'laplace' ? addLaplaceNoise : addDpGaussianNoise;
-
-    const noisyData = applyNoise(formData, sensitivity, epsilon, noiseFunction);
+    const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
     setNoisyData(noisyData);
   };
 
   useEffect(() => {
     console.log('submittedData:', submittedData);
 
-    const noiseFunction =
-      noiseType === 'laplace' ? addLaplaceNoise : addDpGaussianNoise;
-
-    const noisyData = applyNoise(submittedData, sensitivity, epsilon, noiseFunction);
+    //const noisyData = addNoise(submittedData, sensitivity, epsilon);
+    const noisyData = generateNoisyObject(submittedData, sensitivity, epsilon, noiseType);
     console.log('noisyData:', noisyData);
     setNoisyData(noisyData);
   }, [submittedData, sensitivity, epsilon, noiseType]);

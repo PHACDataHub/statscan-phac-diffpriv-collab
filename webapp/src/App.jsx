@@ -5,6 +5,7 @@ import generateNoisyObject from './generateNoisyObject'; // Update import
 import './App.css';
 
 const App = () => {
+  console.log("hello 2")
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
   const sensitivity = 1.0;
