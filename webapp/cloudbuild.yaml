@@ -1,7 +1,9 @@
 steps:
-# Build the container image
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install', '--prefix', './webapp']
 - name: 'gcr.io/cloud-builders/npm'
   args: ['run', '--prefix', './webapp', 'build']
+# Build the container image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA', './webapp']
 # Push the container image to Container Registry
