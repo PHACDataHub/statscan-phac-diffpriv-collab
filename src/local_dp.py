@@ -47,6 +47,12 @@ class LocalDifferentialPrivacy:
     """
 
     def __init__(self, epsilon: float):
+        """
+        Initialize the LocalDifferentialPrivacy instance.
+
+        Parameters:
+        - epsilon: The privacy parameter representing the amount of noise to be added.
+        """
         self.epsilon = epsilon
 
     def define_input_space(
