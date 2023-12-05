@@ -15,14 +15,14 @@ from opendp.typing import *
 # Enable contrib features in OpenDP library
 enable_features("contrib")
 
+np.random.seed(42)
 
 class GlobalDifferentialPrivacy:
     """
     A class for applying global differential privacy to a dataset
-    using Laplace noise.
 
     Attributes:
-    - scale_laplace: The scale parameter for Laplace noise.
+    - epsilon: The privacy parameter representing the amount of noise to be added.
 
     Methods:
     - define_input_space: Define the input space for measurements.
@@ -33,14 +33,14 @@ class GlobalDifferentialPrivacy:
     - apply_global_dp: Apply global differential privacy to the aggregated result.
     """
 
-    def __init__(self, scale_laplace: float):
+    def __init__(self, epsilon: float):
         """
         Initialize the GlobalDifferentialPrivacy instance.
 
         Parameters:
-        - scale_laplace: The scale parameter for Laplace noise.
+        - epsilon: The privacy parameter representing the amount of noise to be added.
         """
-        self.scale_laplace = scale_laplace
+        self.epsilon = epsilon
 
     def map_categories(
         self, list_to_be_aggregated: List[Union[str, int, float]]
@@ -84,6 +84,7 @@ class GlobalDifferentialPrivacy:
         self,
         input_space: Tuple[Domain, float],
         value: Union[str, float, int],
+        scale: float,
         variable_type: str = "float",
     ) -> Union[str, float, int]:
         """
@@ -92,6 +93,7 @@ class GlobalDifferentialPrivacy:
         Parameters:
         - input_space: Input space for the measurement.
         - value: The true value to which noise is added.
+        - scale: The scale parameter for Laplace noise.
         - variable_type: Type of variable ('float', 'int', etc.).
 
         Returns:
@@ -99,7 +101,7 @@ class GlobalDifferentialPrivacy:
         """
 
         # Create a Laplace mechanism with the specified input space and scale
-        base_lap = make_base_laplace(*input_space, scale=self.scale_laplace)
+        base_lap = make_base_laplace(*input_space, scale=scale)
 
         # Generate noisy value using the Laplace mechanism
         noisy_value = base_lap(value)
@@ -204,14 +206,29 @@ class GlobalDifferentialPrivacy:
         }
         return agg_result
 
+    def calculate_scale(self, sensitivity: float) -> float:
+        """
+        Calculate Laplace scale using sensitivity
+
+        Parameters:
+        - sensitivity: The sensitivity of the query.
+
+        Returns:
+        - scale: The Laplace noise scale.
+        """
+        # Calculate Laplace noise scale
+        scale = sensitivity / self.epsilon
+        return scale
+    
     def apply_global_dp(
-        self, result: Dict[str, Union[float, dict]]
+        self, result: Dict[str, Union[float, dict]], sensitivity_dict: Dict[str, float]
     ) -> Dict[str, Union[float, dict]]:
         """
         Apply global differential privacy to the aggregated result.
 
         Parameters:
         - result: The result to which global differential privacy is applied.
+        - sensitivity_dict: A dictionary mapping column names to sensitivity values.
 
         Returns:
         - noisy_result: The result with added noise for privacy preservation.
@@ -221,14 +238,18 @@ class GlobalDifferentialPrivacy:
         tqdm_result = tqdm(result.items(), desc="Applying global DP to result")
         
         for column, data_structure in tqdm_result:
+            
             input_space = self.define_input_space(float)
-
+            
+            scale = self.calculate_scale(sensitivity_dict[column])
+            
             if isinstance(data_structure, dict):
                 # Apply Laplace noise to each value in the dictionary
                 noisy_aggregate = {
                     category: self.add_laplace_noise(
                         input_space,
                         float(aggregated_value),
+                        scale,
                         variable_type=aggregated_value.dtype,
                     )
                     for category, aggregated_value in data_structure.items()
@@ -240,19 +261,62 @@ class GlobalDifferentialPrivacy:
                 noisy_result[column] = self.add_laplace_noise(
                     input_space,
                     float(data_structure),
+                    scale,
                     variable_type=data_structure.dtype,
                 )
 
         return noisy_result
+    
+    def sensitivity_sum(self, column_values) -> float:
+        """
+        Calculate sensitivity for the sum query on a numerical column.
+
+        Parameters:
+        - column_values: The values of the numerical column.
+
+        Returns:
+        - sensitivity: The sensitivity for the sum query.
+        """
+        return abs(max(column_values) - min(column_values))
+
+    def sensitivity_mean(self, column_values) -> float:
+        """
+        Calculate sensitivity for the mean query on a numerical column.
+
+        Parameters:
+        - column_values: The values of the numerical column.
+
+        Returns:
+        - sensitivity: The sensitivity for the mean query.
+        """
+        return abs(max(column_values) - min(column_values)) / len(column_values)
+    
+    def calculate_sensitivity(self, df: pd.DataFrame, query_type: str) -> Dict[str, float]:
+        """
+        Calculate sensitivity for sum or mean queries on all columns of a dataframe.
+
+        Parameters:
+        - df: The input dataframe.
+        - query_type: Type of query ("sum" or "mean").
+
+        Returns:
+        - sensitivity_dict: A dictionary mapping column names to sensitivity values.
+        """
+        sensitivity_dict = {
+            column: 1 if df[column].dtype == 'category' else
+                    self.sensitivity_sum(df[column].values) if query_type == 'sum' else
+                    self.sensitivity_mean(df[column].values)
+            for column in df.columns
+        }
+        return sensitivity_dict
 
 
 def main():
-    np.random.seed(42)
 
     parser = argparse.ArgumentParser(
         description="Apply global differential privacy to a dataset."
     )
-    parser.add_argument("--scale", type=float, help="Scale parameter for Laplace noise")
+    parser.add_argument("--epsilon", type=float, help="Amount of noise to be added")
     parser.add_argument(
         "--query_type",
         type=str,
@@ -270,7 +334,7 @@ def main():
     args = parser.parse_args()
 
     if (
-        not args.scale
+        not args.epsilon
         or not args.query_type
         or not args.input_csv
         or not args.output_json
@@ -305,20 +369,24 @@ def main():
 
     df[columns_to_convert] = df[columns_to_convert].astype("category")
 
-    privacy = GlobalDifferentialPrivacy(args.scale)
+    privacy = GlobalDifferentialPrivacy(args.epsilon)
+    
+    sensitivity_dict = privacy.calculate_sensitivity(df, args.query_type)
+
+    
     query_result = {}
     noisy_result = {}
-    print(args.group_by)
+    
     try:
         if(not args.group_by):
             query_result = privacy.apply_query_to_df(df, args.query_type)
-            noisy_result = privacy.apply_global_dp(query_result)
+            noisy_result = privacy.apply_global_dp(query_result, sensitivity_dict)
         else:
             dfg = df.groupby(args.group_by)
             for val, dff in dfg:
                 q_result = privacy.apply_query_to_df(dff, args.query_type)
                 query_result.update({args.group_by + '_GROUP' + str(val):q_result})
-                n_result = privacy.apply_global_dp(q_result)
+                n_result = privacy.apply_global_dp(q_result, sensitivity_dict)
                 noisy_result.update({args.group_by + '_GROUP' + str(val):n_result})
 
     except Exception as e:
