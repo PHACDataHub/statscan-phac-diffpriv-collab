@@ -24,5 +24,6 @@ steps:
   - 'northamerica-northeast2'
   - '--port'
   - '8080'
+  - 'allow-unauthenticated'
 images:
 - 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA'
