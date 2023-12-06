@@ -1,0 +1,78 @@
+###################################
+##
+## PHAC-STATCAN DP SIMULATIONS - INPUT CONFIGURATION FILE
+##
+###################################
+
+###################################
+##
+## RUN NOTES (if needed, add notes to detail a run)
+## - ...
+##
+###################################
+
+# Random seed.
+# Default value=1
+random_seed: 1
+
+# Epsilon value to use.
+# Default value=1.0
+epsilon: 1.0
+
+# delta value to use.
+# Default value=1.0
+delta: 1.0
+
+# Scaling factor for initial weight values.
+# Default value=1.0
+weight_multiplier: 1.0
+
+# List of query types to use:
+# Options include 'sum', 'mean', and 'frequency'.
+query_types: [
+    'sum',
+    'frequency',
+    'mean'
+]
+
+# List of columns to convert to some specified type.
+# This will usually not need to change unless custom tests are done.
+columns_to_convert: [
+    'GEO_PRV',
+    'GEODGHR4',
+    'DHH_SEX',
+    'DHHGMS',
+    'DHHGAGE',
+    'GEN_005',
+    'GEN_015',
+    'GEN_020',
+    'GEN_025',
+    'SMK_005',
+    'SMK_015',
+    'SMK_020',
+    'SMK_030',
+]
+
+# List of the values to not be adjusted by any DP process.
+# Note: Order the first k entries to be the values desired
+# for stratification when querying.
+# Note: GEO_PRC and GEOHR4 cannot both be used for stratification.
+static_columns: [
+    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'WTS_M', 'ID'
+]
+
+# For the list above, state which first k indices should be used
+# for stratification. Example: If the above list has 5 elements
+# and you want the first 2 for stratification, input 2.
+stratify_first_k: 1
+
+# String to define what to convert the above list of columns to.
+# This will not change unless custom tests are implemented.
+column_conversion_type: 'category'
+
+# Name of the gcp bucket where the data is stored.
+gcp_bucket_name: 'statcanbucket'
+
+# The folder path where the data is stored within the specified bucket.
+# Note that this path must end with a '/'
+gcp_data_folder_path: 'data/cleaned_data/'
