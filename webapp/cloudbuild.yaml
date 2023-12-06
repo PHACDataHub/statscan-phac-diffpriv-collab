@@ -1,7 +1,7 @@
 steps:
 # Install NPM dependencies
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['install', '--prefix', './webapp']
+  args: ['install', '--prefix', './webapp', '--only=dev']
 # Build the dist folder
 - name: 'gcr.io/cloud-builders/npm'
   args: ['run', '--prefix', './webapp', 'build']
