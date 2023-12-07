@@ -36,18 +36,38 @@ const App = () => {
     setNoisyData(noisyData);
   };
 
+  const handleFormReset = (e) => {
+    e.preventDefault();
+    setFormData({
+    exerciseFrequency: '',
+    exerciseDuration: '',
+    exerciseIntensity: '',
+    dailyStepCount: '',
+    sleepDuration: '',
+    weightStatus: '',
+    weightChange: '',
+    fitnessLevel: '',
+    appUsageFrequency: '',
+    caloricIntake: '',
+  });
+    setSubmittedData({});
+    setNoisyData({});
+    setNoiseType('laplace');
+    setEpsilon(1.0);
+    setSensitivity(1.0);
+  };
+
   useEffect(() => {
     const noisyData = generateNoisyObject(submittedData, sensitivity, epsilon, noiseType);
     setNoisyData(noisyData);
   }, [sensitivity, epsilon, noiseType]);
 
   return (
-    <contexts.App.provider value={{formData,setFormData,handleFormSubmit,submittedData,noisyData,noiseType,setNoiseType,epsilon,setEpsilon,sensitivity,setSensitivity,max_min_step}}>
+    <contexts.App.provider value={{formData,setFormData,handleFormSubmit,handleFormReset,submittedData,noisyData,noiseType,setNoiseType,epsilon,setEpsilon,sensitivity,setSensitivity,max_min_step}}>
       <Container fluid className="custom-container">
         <Row>
           <Col xs={12} md={8} lg={9}>
             <div className="panel large-panel">
-              <h3>Health Survey Form</h3>
               <HealthSurveyForm />
             </div>
           </Col>
