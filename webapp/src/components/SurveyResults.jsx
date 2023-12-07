@@ -1,28 +1,31 @@
-import React from 'react';
-import { Container, Row, Col, ProgressBar } from 'react-bootstrap';
+import React, { useContext } from 'react';
+import { contexts } from '../contexts/AppContext';
 
-const SurveyResults = ({ data }) => {
+const SurveyResults = () => {
+  const { submittedData,noisyData } = useContext(contexts.App.context);
+
+  const renderSurveyResult = (label, submittedValue, noisyValue) => (
+    <div key={label}>
+      <strong>{label}:</strong> {submittedValue || ''}  || {noisyValue || ''}
+    </div>
+  );
+
   return (
-    <Container>
-      <h2>Survey Results</h2>
-      {data.map((question, index) => (
-        <div key={index} className="mb-4">
-          <h4>{question.question}</h4>
-          <Row>
-            {question.options.map((option, optionIndex) => (
-              <Col key={optionIndex} xs={12} md={6}>
-                <p>{option.text}</p>
-                <ProgressBar
-                  variant="info"
-                  now={(option.votes / question.totalVotes) * 100}
-                  label={`${option.votes} Votes`}
-                />
-              </Col>
-            ))}
-          </Row>
-        </div>
-      ))}
-    </Container>
+    <>
+      <div className="panel small-panel">
+        <h3>Submitted || Noisy</h3>
+        {Object.entries(submittedData).map(([label, value]) =>
+          renderSurveyResult(label, value, noisyData[label])
+        )}
+      </div>
+
+      { /* <div className="panel small-panel">
+        <h3>Noisy Data</h3>
+        {Object.entries(noisyData).map(([label, value]) =>
+          renderSurveyResult(label, submittedData[label], value)
+        )}
+      </div> */ }
+    </>
   );
 };
 
