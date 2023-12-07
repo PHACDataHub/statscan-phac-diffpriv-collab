@@ -1,120 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 import HealthSurveyForm from './components/HealthSurveyForm';
-import generateNoisyObject from './generateNoisyObject'; // Update import
+import { generateNoisyObject } from './utility/generateNoisyObject';
+import SurveyResults from './components/SurveyResults';
+import { contexts } from './contexts/AppContext';
+import Dropdown from './components/Dropdown';
+import EpsilonSensitivitySliders from './components/EpsilonSensitivitySliders';
+import { EPSILON,SENSITIVITY } from './utility/constants';
 import './App.css';
 
 const App = () => {
-  console.log("hello 2")
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
-  const sensitivity = 1.0;
-  const epsilon = 1.0;
+  const [noiseType, setNoiseType] = useState('laplace');
+  const [formData, setFormData] = useState({
+    exerciseFrequency: '',
+    exerciseDuration: '',
+    exerciseIntensity: '',
+    dailyStepCount: '',
+    sleepDuration: '',
+    weightStatus: '',
+    weightChange: '',
+    fitnessLevel: '',
+    appUsageFrequency: '',
+    caloricIntake: '',
+  });
+  const [sensitivity,setSensitivity] = useState(1.0);
+  const [epsilon, setEpsilon] = useState(1.0);
+  const max_min_step = { [EPSILON] : [0,1,0.05], [SENSITIVITY] : [0,1,0.05] };
 
-  const handleFormSubmit = (formData) => {
-    // Update submittedData
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
     setSubmittedData(formData);
-
-    // Generate and update noisyData
-    const noisyData = generateNoisyObject(formData, sensitivity, epsilon);
+    const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
     setNoisyData(noisyData);
   };
 
   useEffect(() => {
-    console.log('submittedData:', submittedData);
-
-    // No need to check if it's an array, as it's now expecting an object
-    const noisyData = generateNoisyObject(submittedData, sensitivity, epsilon);
-    console.log('noisyData:', noisyData);
+    const noisyData = generateNoisyObject(submittedData, sensitivity, epsilon, noiseType);
     setNoisyData(noisyData);
-  }, [submittedData, sensitivity, epsilon]);
+  }, [sensitivity, epsilon, noiseType]);
 
   return (
-    <Container fluid className="custom-container">
-      <Row>
-        {/* Large Panel on the Left */}
-        <Col xs={12} md={8} lg={9}>
-          <div className="panel large-panel">
-            {/* Content for the large panel goes here */}
-            <h3>Health Survey Form</h3>
-            <HealthSurveyForm onSubmit={handleFormSubmit} />
-          </div>
-        </Col>
+    <contexts.App.provider value={{formData,setFormData,handleFormSubmit,submittedData,noisyData,noiseType,setNoiseType,epsilon,setEpsilon,sensitivity,setSensitivity,max_min_step}}>
+      <Container fluid className="custom-container">
+        <Row>
+          <Col xs={12} md={8} lg={9}>
+            <div className="panel large-panel">
+              <h3>Health Survey Form</h3>
+              <HealthSurveyForm />
+            </div>
+          </Col>
 
-        {/* Small Panel on Top of the Other on the Right */}
-        <Col xs={12} md={4} lg={3}>
-          {/* Small Panel for Submitted Data */}
-          <div className="panel small-panel">
-            <h3>Submitted Data</h3>
-            <div>
-              <strong>Exercise Frequency:</strong> {submittedData.exerciseFrequency || ''}
-            </div>
-            <div>
-              <strong>Exercise Duration:</strong> {submittedData.exerciseDuration || ''}
-            </div>
-            <div>
-              <strong>Exercise Intensity:</strong> {submittedData.exerciseIntensity || ''}
-            </div>
-            <div>
-              <strong>Daily Step Count:</strong> {submittedData.dailyStepCount || ''}
-            </div>
-            <div>
-              <strong>Sleep Duration:</strong> {submittedData.sleepDuration || ''}
-            </div>
-            <div>
-              <strong>Weight Status:</strong> {submittedData.weightStatus || ''}
-            </div>
-            <div>
-              <strong>Weight Change:</strong> {submittedData.weightChange || ''}
-            </div>
-            <div>
-              <strong>Fitness Level:</strong> {submittedData.fitnessLevel || ''}
-            </div>
-            <div>
-              <strong>App Usage Frequency:</strong> {submittedData.appUsageFrequency || ''}
-            </div>
-            <div>
-              <strong>Caloric Intake:</strong> {submittedData.caloricIntake || ''}
-            </div>
-          </div>
-
-          {/* Small Panel for Noisy Data */}
-          <div className="panel small-panel">
-            <h3>Noisy Data</h3>
-            <div>
-              <strong>Exercise Frequency:</strong> {noisyData.exerciseFrequency || ''}
-            </div>
-            <div>
-              <strong>Exercise Duration:</strong> {noisyData.exerciseDuration || ''}
-            </div>
-            <div>
-              <strong>Exercise Intensity:</strong> {noisyData.exerciseIntensity || ''}
-            </div>
-            <div>
-              <strong>Daily Step Count:</strong> {noisyData.dailyStepCount || ''}
-            </div>
-            <div>
-              <strong>Sleep Duration:</strong> {noisyData.sleepDuration || ''}
-            </div>
-            <div>
-              <strong>Weight Status:</strong> {noisyData.weightStatus || ''}
-            </div>
-            <div>
-              <strong>Weight Change:</strong> {noisyData.weightChange || ''}
-            </div>
-            <div>
-              <strong>Fitness Level:</strong> {noisyData.fitnessLevel || ''}
-            </div>
-            <div>
-              <strong>App Usage Frequency:</strong> {noisyData.appUsageFrequency || ''}
-            </div>
-            <div>
-              <strong>Caloric Intake:</strong> {noisyData.caloricIntake || ''}
-            </div>
-          </div>
-        </Col>
-      </Row>
-    </Container>
+          <Col xs={12} md={4} lg={3}>
+            <EpsilonSensitivitySliders />
+            <Dropdown />
+            <SurveyResults />
+          </Col>
+        </Row>
+      </Container>
+    </contexts.App.provider>
   );
 };
 
