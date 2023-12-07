@@ -4,7 +4,8 @@ import { contexts } from '../contexts/AppContext'
 
 function Dropdown() {
 
-  const { noiseType,setNoiseType } = useContext(contexts.App.context);
+  const { noiseType,setNoiseType,submittedData } = useContext(contexts.App.context);
+  const disabled = Object.keys(submittedData).length === 0 ? true : false;
 
   return (
     <div>
@@ -14,6 +15,7 @@ function Dropdown() {
                 as="select"
                 value={noiseType}
                 onChange={(e) => setNoiseType(e.target.value)}
+                disabled={disabled}
             >
                 <option value="laplace">Laplace Noise</option>
                 <option value="gaussian">Gaussian Noise</option>

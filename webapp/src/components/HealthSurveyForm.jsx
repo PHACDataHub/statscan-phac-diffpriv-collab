@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { contexts } from '../contexts/AppContext';
 
 const HealthSurveyForm = ({ onSubmit }) => {
-  const { formData,setFormData,handleFormSubmit } = useContext(contexts.App.context);
+  const { formData,setFormData,handleFormSubmit,handleFormReset } = useContext(contexts.App.context);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -11,6 +11,7 @@ const HealthSurveyForm = ({ onSubmit }) => {
 
   return (
     <div>
+      <h3>Health Survey Form</h3>
       <form onSubmit={handleFormSubmit}>
         <label>
           Exercise Frequency (days per week):
@@ -122,6 +123,7 @@ const HealthSurveyForm = ({ onSubmit }) => {
         </label>
 
        <input type="submit" value="Submit" />
+       <input type="button" value="Reset" onClick={handleFormReset}/>
       </form>
     </div>
   );
