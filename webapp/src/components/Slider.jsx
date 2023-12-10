@@ -2,9 +2,8 @@ import React, { useContext } from 'react'
 import { contexts } from '../contexts/AppContext';
 import { EPSILON,SENSITIVITY } from '../utility/constants';
 
-function Slider() {
+function Slider({ type }) {
   const { submittedData,epsilon,setEpsilon,sensitivity,setSensitivity,max_min_step } = useContext(contexts.App.context);
-  const { type } = useContext(contexts.Slider.context);
 
   const handleChange = function(e){
     console.log(type);
