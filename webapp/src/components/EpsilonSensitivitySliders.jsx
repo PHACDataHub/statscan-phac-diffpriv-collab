@@ -6,12 +6,8 @@ import { EPSILON,SENSITIVITY } from '../utility/constants';
 function EpsilonSensitivitySliders() {
   return (
     <div>
-        <contexts.Slider.provider value={{type:EPSILON}}>
-            <Slider />
-        </contexts.Slider.provider>
-        <contexts.Slider.provider value={{type:SENSITIVITY}}>
-            <Slider />
-        </contexts.Slider.provider>
+        <Slider type={EPSILON}/>
+        <Slider type={SENSITIVITY}/>
     </div>
   )
 }
