@@ -1,4 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import { contexts } from '../contexts/AppContext';
 
 const HealthSurveyForm = () => {
@@ -60,16 +64,49 @@ const HealthSurveyForm = () => {
     })
   }  
 
+  const formGenerator2 = (formState) => { 
+    return Object.entries(formState).map(el => {
+      const [ Key,Value ] = el;
+      const border = Value.border ? { border : "solid", borderColor : "red" } : { border : "none" }
+      if(Value.type == "number"){
+        return <Form.Group as={Row} className="mb-1" key={Key+Value.type}>
+                  <Form.Label column sm="4" key = {Key}>
+                    {Value.label}
+                  </Form.Label>
+                  <Col sm="5" style = { border }>
+                    <Form.Control type="number" key={Value} name={Key} value={Value.value} onChange={handleChange}/>
+                  </Col>
+                </Form.Group>
+      }
+      else if(Value.type == "select"){
+        return  <Form.Group as={Row} className="mb-1" key={Key+Value.type}>
+                  <Form.Label column sm="4" key = {Key}>
+                    {Value.label}
+                  </Form.Label>
+                  <Col sm="5" style = {border}>
+                    <Form.Select name={Key} value={Value.value} onChange={handleChange}>
+                      { Value.values.map(el => <option key={el.label} value={el.value}>{el.label}</option>) }
+                    </Form.Select>
+                  </Col>
+                </Form.Group>
+      }
+    })
+  }  
+
   return (
     <div>
       <h3>Health Survey Form</h3>
-      <form onSubmit={submitForm}>
+      <Form onSubmit={submitForm}>
         {
-          formGenerator(formData)
+          formGenerator2(formData)
         }
-       <input type="submit" value="Submit"/>
-       <input type="button" value="Reset" onClick={handleFormReset}/>
-      </form>
+        <Button type="submit" variant="primary" size="lg" active>
+          Submit
+        </Button>
+        <Button type="button" variant="secondary" size="lg" active onClick={handleFormReset}>
+          Reset
+        </Button>
+      </Form>
     </div>
   );
 };
