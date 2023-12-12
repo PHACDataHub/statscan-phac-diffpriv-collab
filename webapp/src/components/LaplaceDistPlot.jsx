@@ -1,7 +1,7 @@
 import React from 'react'
 import { useContext } from 'react';
-import Plot from 'react-plotly.js';
 import { contexts } from '../contexts/AppContext';
+import Plot from 'react-plotly.js';
 
 function LaplaceDistPlot() {
   const { sensitivity,epsilon } = useContext(contexts.App.context);
