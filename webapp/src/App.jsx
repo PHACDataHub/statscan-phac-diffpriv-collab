@@ -9,6 +9,7 @@ import EpsilonSensitivitySliders from './components/EpsilonSensitivitySliders';
 import { EPSILON,SENSITIVITY } from './utility/constants';
 import { initFormState } from './initialStates';
 import './App.css';
+import LaplaceDistPlot from './components/LaplaceDistPlot';
 
 const App = () => {
   const [formData, setFormData] = useState(initFormState);
@@ -56,6 +57,7 @@ const App = () => {
           </Col>
 
           <Col xs={12} md={4} lg={3}>
+            <LaplaceDistPlot />
             <EpsilonSensitivitySliders />
             <Dropdown />
           </Col>
@@ -63,6 +65,8 @@ const App = () => {
         <Row>
           <Col xs={12} md={8} lg={9}>
             <SurveyResults />
+          </Col>
+          <Col xs={12} md={8} lg={9}>
           </Col>
         </Row>
       </Container>
