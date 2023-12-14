@@ -16,11 +16,13 @@ function Slider({ type }) {
   }
 
   const disabled = Object.keys(submittedData).length === 0 ? true : false;
-
+  const showEpsilon = type === EPSILON ? { display : "block" } : { display : "none" }
+  const showSensitivity = type === SENSITIVITY ? { display : "block" } : { display : "none" }
   return (
     <div>
+      <section style = { showEpsilon }>{EPSILON} : {epsilon}</section>
       <input id={type} type="range" min={max_min_step[type][0]} max={max_min_step[type][1]} step={max_min_step[type][2]} value = {type === EPSILON ? epsilon : sensitivity} onChange={handleChange} disabled={disabled}/>
-      <p>{type} Value: {type === EPSILON ? epsilon : sensitivity}</p>
+      <section style = { showSensitivity }>{SENSITIVITY} : {sensitivity}</section>
     </div>
   );
 }

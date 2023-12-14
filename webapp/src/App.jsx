@@ -59,6 +59,7 @@ const App = () => {
           <Col xs={12} md={4} lg={3}>
             <LaplaceDistPlot />
             <EpsilonSensitivitySliders />
+            <br></br>
             <Dropdown />
           </Col>
         </Row>

@@ -10,7 +10,7 @@ function Dropdown() {
   return (
     <div>
         <Form.Group controlId="noiseTypeDropdown">
-            <Form.Label>Noise Type</Form.Label>
+            <Form.Label>Noise Type :</Form.Label>
             <Form.Control
                 as="select"
                 value={noiseType}
