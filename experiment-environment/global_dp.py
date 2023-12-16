@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import numpy.typing as npt
 from opendp.domains import Domain, atom_domain, vector_domain
 from opendp.measurements import make_base_discrete_laplace, make_base_laplace
 from opendp.metrics import absolute_distance
@@ -118,20 +119,21 @@ class GlobalDifferentialPrivacy:
     def apply_query_to_list(
         self,
         list_to_be_aggregated: List[Union[str, int, float]],
+        weights: npt.NDArray[np.float64],
         query_type: str,
         variable_type: str = "float",
     ) -> Union[float, dict]:
         """
         Apply global differential privacy to a given list
-        of data based on its data type and query type.
 
         Parameters:
         - list_to_be_aggregated: A list representing the data.
         - query_type: Type of query ('sum', 'mean', 'frequency', ...).
+        - weights: A list of design weights.
         - variable_type: Type of variable ('float', 'int', etc.).
 
         Returns:
-        - result: The result with global differential privacy applied.
+        - result: Apply global differential privacy to a given list
         """
 
         # Check if the query type is sum or mean
@@ -142,10 +144,16 @@ class GlobalDifferentialPrivacy:
                 category_mapping, numeric_list = self.map_categories(
                     list_to_be_aggregated
                 )
+                
+                # Increment with the weight rather than count
+                weighted_sum = np.zeros(category_mapping.__len__())
+                for index in range(numeric_list.__len__()):
+                    category, weight  = numeric_list[index], weights[index]
+                    weighted_sum[category] += weight
 
                 # Calculate category sums or means based on the query type
                 if query_type == "sum":
-                    category_sums = np.bincount(numeric_list)
+                    category_sums = weighted_sum
                     result_dict = {
                         category: category_sums[i]
                         for category, i in category_mapping.items()
@@ -153,7 +161,7 @@ class GlobalDifferentialPrivacy:
                     return result_dict
                 elif query_type == "mean":
                     category_means = (
-                        np.bincount(numeric_list) / np.bincount(numeric_list).sum()
+                        weighted_sum / weights.sum()
                     )
                     result_dict = {
                         category: category_means[i]
@@ -164,16 +172,30 @@ class GlobalDifferentialPrivacy:
             # If the variable type is float or int, handle aggregation for numerical data
             elif variable_type in ["float", "int"]:
                 if query_type == "sum":
-                    return np.sum(list_to_be_aggregated)
+                    return np.sum(list_to_be_aggregated * weights)
                 elif query_type == "mean":
-                    return np.mean(list_to_be_aggregated)
+                    return np.sum(list_to_be_aggregated * weights) / weights.sum()
             else:
                 raise ValueError("Unsupported variable type")
 
         # If the query type is frequency, handle frequency aggregation
         elif query_type == "frequency":
             if variable_type == "category":
-                return dict(pd.Series(list_to_be_aggregated).value_counts())
+                # Create a mapping from categories to numeric values
+                category_mapping, numeric_list = self.map_categories(
+                    list_to_be_aggregated
+                )
+
+                # Increment with the weight rather than count
+                weighted_sum = np.zeros(category_mapping.__len__())
+                for index in range(numeric_list.__len__()):
+                    category, weight  = numeric_list[index], weights[index]
+                    weighted_sum[category] += weight
+
+                categories = set(list_to_be_aggregated)
+                dict(zip(categories, weighted_sum))
+
+                return dict(zip(categories, weighted_sum))
             else:
                 return float("NaN")
         else:
@@ -192,14 +214,16 @@ class GlobalDifferentialPrivacy:
         Returns:
         - agg_result: The result with global differential privacy applied to the dataframe.
         """
+        columns = [col for col in df.columns if col.upper() not in ['ID', 'WTS_M']] # remove ID and weights
+        
         # Use tqdm to display a progress bar with a description
         tqdm_columns = tqdm(
-            df.columns, desc=f"Applying query '{query_type}' to dataframe"
+            columns, desc=f"Applying query '{query_type}' to dataframe"
         )
 
         agg_result = {
             column: self.apply_query_to_list(
-                df[column].values, query_type, df[column].dtype
+                df[column].values, df['WTS_M'].values, query_type, df[column].dtype
             )
             for column in tqdm_columns
         }
