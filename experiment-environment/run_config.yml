@@ -38,11 +38,6 @@ query_types: [
 # List of columns to convert to some specified type.
 # This will usually not need to change unless custom tests are done.
 columns_to_convert: [
-    'GEO_PRV',
-    'GEODGHR4',
-    'DHH_SEX',
-    'DHHGMS',
-    'DHHGAGE',
     'GEN_005',
     'GEN_015',
     'GEN_020',

@@ -56,8 +56,9 @@ def convert_df_type(df: pd.DataFrame, columns_to_convert: list[str], type_name: 
     Returns:
         Adjusted dataframe.
     """
+    df_convert = df.copy()
     try:
-        df[columns_to_convert] = df[columns_to_convert].astype(type_name)
+        df_convert[columns_to_convert] = df_convert[columns_to_convert].astype(type_name)
     except Exception as e:
         print(e)
-    return df
+    return df_convert

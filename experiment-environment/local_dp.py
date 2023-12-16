@@ -105,6 +105,7 @@ class LocalDifferentialPrivacy:
             noisy_value = base_lap(value)
         else:
             raise ValueError("Unsupported variable type")
+        noisy_value = [abs(value) for value in noisy_value]
         return noisy_value
 
     def randomized_response(
@@ -213,7 +214,7 @@ class LocalDifferentialPrivacy:
         Returns:
         - df_transformed: The dataframe with local differential privacy applied.
         """
-
+                
         tqdm_func.pandas(
             desc="Applying Local DP",
             bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]",

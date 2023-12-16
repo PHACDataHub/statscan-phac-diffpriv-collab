@@ -13,6 +13,7 @@ import shuffle_dp
 import global_dp
 import evaluate
 
+
 def main(config_file: str = typer.Argument(..., help="Location of the .yml config file (default name is run_config.yml).")) -> None:
     """
     <describe pipeline when done>
@@ -50,9 +51,9 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     # Load the data partition to be used (the '/' value is needed at the end)
     df = data_loader.load_data_sources(gcp_bucket_name, gcp_data_folder_path)
     
+    
     # Adjust weights based on the selected scaling factor
     df['WTS_M'] *= weight_multiplier
-    
     # (2) Seperate the static values from the other values, which are dynamic
     df_static = df[static_columns].copy()
     df_dynamic = df.drop(static_columns[:-1], axis=1)
@@ -61,18 +62,26 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     ldp_module = local_dp.LocalDifferentialPrivacy(epsilon)
     # Calculate the appropriate privacy budget parameters
     # TODO: Make dynamic for all query types
-    sensitivity_dict = ldp_module.calculate_sensitivity(df_dynamic, query_types[0])
 
+    df_dynamic_ldp = utilities.convert_df_type(df_dynamic, columns_to_convert, column_conversion_type)
+    
+    sensitivity_dict = ldp_module.calculate_sensitivity(df_dynamic_ldp, query_types[0])
+
+    
     # Apply LDP to the specified dataframe, excluding static parameters and converting categorical column types
     try:
-        df_ldp = ldp_module.apply_to_dataframe(utilities.convert_df_type(df_dynamic, columns_to_convert, column_conversion_type), sensitivity_dict)
+        df_ldp = ldp_module.apply_to_dataframe(df_dynamic_ldp, sensitivity_dict)
     except Exception as e:
         print(f"Error applying local differential privacy: {e}")
         return
+    
+
     print("\nNo DP RESULT")
     print(df_dynamic.head())
     print("\nLDP RESULT")
     print(df_ldp.head())
+    
+    
     
     # Prepare the SDP instance
     sdp_module = shuffle_dp.ShuffleDifferentialPrivacy(epsilon, delta)
@@ -87,6 +96,8 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     
     # Get Query results for dataset, LDP, and SDP datasets
     gdp_module = global_dp.GlobalDifferentialPrivacy(epsilon)
+    
+    
     # Need to combine the datasets back together for shuffle and local DP
     ldp_data_full = pd.concat([df_static, df_ldp], axis=1, ignore_index=False, sort=True)
     
@@ -106,12 +117,12 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     # Do whatever outputs...
     ...
     
+    
     return
 
 def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
-    """
-    
-    """
+
+
     query_result = {}
     noisy_result = {}
     
@@ -126,14 +137,13 @@ def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_
     for query_type in query_types:
         for group_name, df_group in df_groups:
             print("NAME:", group_name)
-            q_result = gdp_module.apply_query_to_df(df_group.drop(grouping_variables, axis=1), query_type)
+            q_result = gdp_module.apply_query_to_df(df_group.drop(grouping_variables, axis=1), query_type)    
             query_result.update({query_type + '_GROUP_' + str(group_name):q_result})
             # If GDP is being applied, also derive the noisy outputs
             if apply_noise:
                 sensitivity = gdp_module.calculate_sensitivity(df, query_type)
                 n_result = gdp_module.apply_global_dp(q_result, sensitivity)
-                noisy_result.update({query_type + '_GROUP_' + str(group_name):n_result})         
-                
+                noisy_result.update({query_type + '_GROUP_' + str(group_name):n_result})  
     return query_result, noisy_result
     
 if __name__ == '__main__':
