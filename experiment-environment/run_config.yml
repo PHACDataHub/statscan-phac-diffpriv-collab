@@ -31,7 +31,7 @@ weight_multiplier: 1.0
 # Options include 'sum', 'mean', and 'frequency'.
 query_types: [
     'sum',
-    'frequency',
+    #'frequency',
     'mean'
 ]
 
@@ -53,7 +53,7 @@ columns_to_convert: [
 # for stratification when querying.
 # Note: GEO_PRC and GEOHR4 cannot both be used for stratification.
 static_columns: [
-    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'WTS_M', 'ID'
+    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'ID'
 ]
 
 # For the list above, state which first k indices should be used

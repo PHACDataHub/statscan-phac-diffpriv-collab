@@ -102,6 +102,9 @@ class GlobalDifferentialPrivacy:
 
         # Create a Laplace mechanism with the specified input space and scale
         base_lap = make_base_laplace(*input_space, scale=scale)
+        
+        if value == 'nan':
+            return
 
         # Generate noisy value using the Laplace mechanism
         noisy_value = base_lap(value)
@@ -113,6 +116,7 @@ class GlobalDifferentialPrivacy:
             # Ensure that the noisy value is different from the original value
             if value == noisy_value:
                 noisy_value = int(np.ceil(noisy_value))
+        
 
         return noisy_value
 
