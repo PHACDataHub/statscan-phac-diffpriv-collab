@@ -102,9 +102,6 @@ class GlobalDifferentialPrivacy:
 
         # Create a Laplace mechanism with the specified input space and scale
         base_lap = make_base_laplace(*input_space, scale=scale)
-        
-        if value == 'nan':
-            return
 
         # Generate noisy value using the Laplace mechanism
         noisy_value = base_lap(value)
@@ -284,13 +281,16 @@ class GlobalDifferentialPrivacy:
                 noisy_result[column] = noisy_aggregate
 
             elif isinstance(data_structure, (int, float)):
-                # Apply Laplace noise to a single numeric value
-                noisy_result[column] = self.add_laplace_noise(
-                    input_space,
-                    float(data_structure),
-                    scale,
-                    variable_type=data_structure.dtype,
-                )
+                try:
+                    # Apply Laplace noise to a single numeric value
+                    noisy_result[column] = self.add_laplace_noise(
+                        input_space,
+                        float(data_structure),
+                        scale,
+                        variable_type=data_structure.dtype,
+                    )
+                except AttributeError:
+                    noisy_result[column] = "NaN"
 
         return noisy_result
     

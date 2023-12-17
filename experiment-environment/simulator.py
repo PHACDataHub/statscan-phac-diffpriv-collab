@@ -13,7 +13,6 @@ import shuffle_dp
 import global_dp
 import evaluate
 
-
 def main(config_file: str = typer.Argument(..., help="Location of the .yml config file (default name is run_config.yml).")) -> None:
     """
     <describe pipeline when done>
