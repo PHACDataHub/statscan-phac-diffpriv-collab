@@ -38,11 +38,6 @@ query_types: [
 # List of columns to convert to some specified type.
 # This will usually not need to change unless custom tests are done.
 columns_to_convert: [
-    'GEO_PRV',
-    'GEODGHR4',
-    'DHH_SEX',
-    'DHHGMS',
-    'DHHGAGE',
     'GEN_005',
     'GEN_015',
     'GEN_020',
@@ -58,7 +53,7 @@ columns_to_convert: [
 # for stratification when querying.
 # Note: GEO_PRC and GEOHR4 cannot both be used for stratification.
 static_columns: [
-    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'WTS_M', 'ID'
+    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'ID'
 ]
 
 # For the list above, state which first k indices should be used
