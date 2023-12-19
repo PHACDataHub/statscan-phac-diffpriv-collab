@@ -64,9 +64,11 @@ const App = () => {
           </Col>
         </Row>
         <Row>
-          <Col xs={12} md={8} lg={9}>
-            <SurveyResults />
-          </Col>
+          {Object.entries(submittedData).length != 0 &&
+            <Col xs={12} md={8} lg={9}>
+              <SurveyResults />
+            </Col>
+          }
           <Col xs={12} md={8} lg={9}>
           </Col>
         </Row>
