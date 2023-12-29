@@ -39,6 +39,7 @@ const HealthSurveyForm = () => {
         const randomNumber = Math.floor((Math.random() * (max - min)) + min);
         Value.value = values[randomNumber].value;
       }
+      Value.border = false;
     });
     setFormData(copiedFormData);
   }
@@ -74,14 +75,15 @@ const HealthSurveyForm = () => {
   const formGenerator = (formState) => { 
     return Object.entries(formState).map(el => {
       const [ Key,Value ] = el;
-      const border = Value.border ? { border : "solid", borderColor : "red" } : { border : "none" }
+      const border = Value.border ? { border : "solid", borderColor : "red" } : { border : "none" };
+      const className = Value.border ? "border-danger border-2" : "" ;
       if(Value.type == "number"){
         return <Form.Group as={Row} className="mb-1" key={Key+Value.type}>
                   <Form.Label column sm="4" key = {Key}>
                     {Value.label}
                   </Form.Label>
-                  <Col sm="5" style = { border }>
-                    <Form.Control type={Value.type} key={Value} name={Key} value={Value.value} onChange={handleChange}/>
+                  <Col sm="5" >
+                    <Form.Control type={Value.type} key={Value} name={Key} value={Value.value} onChange={handleChange} className={className} />
                   </Col>
                 </Form.Group>
       }
@@ -90,8 +92,8 @@ const HealthSurveyForm = () => {
                   <Form.Label column sm="4" key = {Key}>
                     {Value.label}
                   </Form.Label>
-                  <Col sm="5" style = {border}>
-                    <Form.Select name={Key} value={Value.value} onChange={handleChange}>
+                  <Col sm="5" >
+                    <Form.Select name={Key} value={Value.value} onChange={handleChange} className={className}>
                       { Value.values.map(el => <option key={el.label} value={el.value}>{el.label}</option>) }
                     </Form.Select>
                   </Col>
