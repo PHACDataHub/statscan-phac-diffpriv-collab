@@ -98,9 +98,9 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     
     
     # Need to combine the datasets back together for shuffle and local DP
-    ldp_data_full = pd.concat([df_static, df_ldp], axis=1, ignore_index=False, sort=True)
-    
-    sdp_data_full = pd.concat([df_static, df_sdp], axis=1, ignore_index=False, sort=True)
+    ldp_data_full = df_static.join(df_ldp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
+
+    sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
     # Need to convert the shuffle DP columns to category
     
     query_results = []
@@ -111,7 +111,8 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     ...
     
     # Run evaluation scripts
-    ...
+    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full)
+    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full)
     
     # Do whatever outputs...
     ...
