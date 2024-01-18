@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import { contexts } from '../contexts/AppContext';
 
 const HealthSurveyForm = () => {
-  const { formData,setFormData,handleFormSubmit,handleFormReset,submitted,setSubmitted } = useContext(contexts.App.context);
+  const { formData,setFormData,handleFormSubmit,handleFormReset,submitted,setSubmitted,setFilledAndValid } = useContext(contexts.App.context);
 
   const validateInput = (name, value) => {
     const { range,performIntegerCheck,type } = formData[name];
@@ -19,6 +19,17 @@ const HealthSurveyForm = () => {
     if(val >= range[0] && val <= range[1] && isInteger)
       return true;
     return false;
+  }
+
+  const isFormFilledAndValid = (data) => {
+      let filledAndValid = true;
+      Object.entries(data).map(el => {
+        const [ Key,Value ] = el;
+        data[Key].border = (Value.value === '' || !validateInput(Key,Value.value)) ? true : false;
+        if(filledAndValid)
+          filledAndValid = !data[Key].border;
+      }); 
+      return filledAndValid;
   }
 
   const randomizeFormData = (e) => {
@@ -47,22 +58,23 @@ const HealthSurveyForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     const isValid = validateInput(name,value);
+    const copiedFormData = JSON.parse(JSON.stringify(formData));
+    copiedFormData[name]["value"] = value;
+    const formFilledAndValid = isFormFilledAndValid(copiedFormData);
     setFormData((prevFormData) => { return { ...prevFormData, [name] : { ...prevFormData[name], ["value"] : value , ["border"] : !isValid ? true : false}} })
-    if(submitted > 0)
+    if(submitted > 0){
+        setFilledAndValid(formFilledAndValid);
         setFormData((prevFormData) => { return { ...prevFormData, [name] : { ...prevFormData[name], ["border"] : (value == '' || !isValid) ? true : false }} })
+    }
   };
 
   useEffect(() => {
     if(submitted > 0){
-      let filledOrValid = true;
       const copiedFormData = JSON.parse(JSON.stringify(formData));
-      Object.entries(copiedFormData).map(el => {
-        const [ Key,Value ] = el;
-        if(filledOrValid)
-          filledOrValid = (Value.value == '' || !validateInput(Key,Value.value)) ? false : true;
-        copiedFormData[Key].border = (Value.value == '' || !validateInput(Key,Value.value)) ? true : false;
-      });
-      const whichFunc = filledOrValid == true ? handleFormSubmit : setFormData;
+      const filledAndValid = isFormFilledAndValid(copiedFormData);
+      const whichFunc = filledAndValid == true ? handleFormSubmit : setFormData;
+      console.log(filledAndValid);
+      setFilledAndValid(filledAndValid);
       whichFunc(copiedFormData);
     }
   }, [submitted]);
