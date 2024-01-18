@@ -78,14 +78,14 @@ const App = () => {
   return (
     <contexts.App.provider value={contextValues}>
       <Container fluid className="custom-container" >
-        <Row className='fade' style={style}>
+        <Row style={style} className="fade">
           <Col xs={12} md={12} lg={12}>
             <div className="panel large-panel">
               <HealthSurveyForm />
             </div>
           </Col>
         </Row>
-        <Row className='fade'>
+        <Row className="fade">
           {Object.entries(submittedData).length != 0 &&
             <Row style={style}>
               <Col xs={12} md={8} lg={9}>
@@ -100,9 +100,9 @@ const App = () => {
             </Row>
           }
         </Row>
-        <Row className='fade'>
+        <Row className="fade">
           {Object.entries(finalOutput).length != 0 &&
-            <Row style={style2} >
+            <Row style={style2} className="fade">
               <Col xs={12} md={12} lg={12}>
                 <div className="panel large-panel">
                   <FinalOutput />
