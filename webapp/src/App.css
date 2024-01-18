@@ -43,3 +43,20 @@ body {
     margin-left: 0; /* Remove margin on smaller screens */
   }
 }
+
+.fade {
+  animation: fade ease both;
+  animation-timeline: view();
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
