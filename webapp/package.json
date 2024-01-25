@@ -16,7 +16,8 @@
     "react-bootstrap": "^2.9.1",
     "react-code-blocks": "^0.1.5",
     "react-dom": "^18.2.0",
-    "react-plotly.js": "^2.6.0"
+    "react-plotly.js": "^2.6.0",
+    "react-scroll-motion": "^0.3.3"
   },
   "devDependencies": {
     "@rsbuild/core": "^0.1.2",

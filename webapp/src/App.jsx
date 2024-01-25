@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
+
 import { generateNoisyObject } from './utility/generateNoisyObject';
 import { contexts } from './contexts/AppContext';
 import { EPSILON,SENSITIVITY } from './utility/constants';
-import { initFormState } from './initialStates';
+import { initFormState,classNames } from './initialStates';
 
 import HealthSurveyForm from './components/HealthSurveyForm';
-import SurveyResults from './components/SurveyResults';
-import Dropdown from './components/Dropdown';
-import EpsilonSensitivitySliders from './components/EpsilonSensitivitySliders';
-import LaplaceDistPlot from './components/LaplaceDistPlot';
 import FinalOutput from './components/FinalOutput'
 import './App.css';
+import IntermediateResults from './components/IntermediateResults';
 
 const App = () => {
+  const formRef = useRef(null);
+  const submittedDataRef = useRef(null);
+  const finalOutputRef = useRef(null);
   const [formData, setFormData] = useState(initFormState);
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
@@ -25,20 +26,14 @@ const App = () => {
   const [finalOutput,setFinalOutput] = useState({});
 
   const max_min_step = { [EPSILON] : [0,1,0.05], [SENSITIVITY] : [0,1,0.05] };
-  const style = {
-      "paddingTop": '25vh',
-      "paddingBottom": '25vh'
-    };
-  const style2 = {
-      "paddingTop": '30vh',
-      "paddingBottom": '30vh'
-    };
 
   const handleFormSubmit = () => {
     setSubmittedData(formData);
     const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
     setNoisyData(noisyData);
-    window.scrollTo({top:document.getElementsByClassName("fade")[1].offsetTop});
+    document.getElementsByClassName('submittedData')[0].classList.replace('hide','show');
+    const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight); 
+    window.scrollTo({top:height*2,behavior: "smooth"});
   };
 
   const handleFormReset = (e) => {
@@ -52,15 +47,72 @@ const App = () => {
     setSensitivity(1.0);
     setFilledAndValid(false);
     setFinalOutput({});
+    for(let x = document.getElementsByClassName("show").length - 1; x >= 0; x--){
+      document.getElementsByClassName("show")[x].classList.replace("show","hide");
+    }
   };
+  const inc = 0.01;
+  const threshold = [...Array(1/inc),1].map((_, i) => (i*inc))
+  const options = {
+    root : null,
+    rootMargin : "0px",
+    threshold: threshold
+  }
+
+  const callback = (entries,observer) => {
+      entries.forEach(entry => {
+          const intersectionRatio = entry.intersectionRatio;
+          let val = 0;
+          for(let x = 1; x < threshold.length; x++){
+            if(intersectionRatio >= threshold[x-1] && intersectionRatio <= threshold[x]){
+              val = threshold[x];
+              break;
+            }
+          }
+          const startOpacity = 0;
+          const endOpactity = 1;
+          const opacity = startOpacity + ((endOpactity - startOpacity) * val)
+
+          const startX = -150;
+          const endX = -50;
+          const X = startX + ((endX - startX) * val);
+          const el = entry.target.parentElement.children[1];   
+          el.style.opacity = opacity;
+          el.style.transform = `translate(${X}%,-50%)`;
+      });
+    }
+ 
+  const formObserver = new IntersectionObserver(callback,options);
+  const submittedDataObserver = new IntersectionObserver(callback,options);
+  const finalOutputObserver = new IntersectionObserver(callback,options);
 
   useEffect(() => {
+    if(formRef.current){
+      formObserver.observe(formRef.current);
+    }
+
+    if(submittedDataRef.current){
+      //submittedDataObserver.observe(submittedDataRef.current);
+      formObserver.observe(submittedDataRef.current);
+    }
+
+    if(finalOutputRef.current){
+      //finalOutputObserver.observe(finalOutputRef.current);
+      formObserver.observe(finalOutputRef.current);
+    }
+
     if(filledAndValid && submitted > 0){
       setSubmittedData(formData);
       const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
       setNoisyData(noisyData);
     }
-  }, [ formData, sensitivity, epsilon, noiseType]);
+    return () => {
+      formObserver.disconnect();
+      submittedDataObserver.disconnect();
+      finalOutputObserver.disconnect();
+    }
+  }, [formRef.current, submittedDataRef.current, finalOutputRef.current,
+      formData, sensitivity, epsilon, noiseType]);
 
   const contextValues = {formData,setFormData,
                          handleFormSubmit,
@@ -77,41 +129,49 @@ const App = () => {
 
   return (
     <contexts.App.provider value={contextValues}>
-      <Container fluid className="custom-container" >
-        <Row className='fade' style={style}>
-          <Col xs={12} md={12} lg={12}>
-            <div className="panel large-panel">
-              <HealthSurveyForm />
-            </div>
-          </Col>
-        </Row>
-        <Row className='fade'>
+    <div style={{ height: '100%',width: '100%'}}>
+        <div className='sidebar'></div>
+        <div style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0'}}></div>
+        <div className='form getHeight'  
+          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0'}}>
+          <div ref={formRef} className='offsetBox'></div>
+          <div className='box'>
+             <Container fluid className="custom-container">
+              <Row>
+                <Col xs={12} md={12} lg={12}>
+                  <div className="panel large-panel">
+                  <HealthSurveyForm />
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+          </div>
+        </div>
+        <div className='submittedData hide getHeight'  
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0'}}>
+          <div ref={submittedDataRef} className='offsetBox'></div>
+          <div className='box'>
           {Object.entries(submittedData).length != 0 &&
-            <Row style={style}>
-              <Col xs={12} md={8} lg={9}>
-                <SurveyResults />
-              </Col>
-              <Col xs={12} md={4} lg={3}>
-                <LaplaceDistPlot />
-                <EpsilonSensitivitySliders />
-                <br></br>
-                <Dropdown />
-              </Col>
-            </Row>
-          }
-        </Row>
-        <Row className='fade'>
+              <IntermediateResults/>}
+          </div>
+        </div>
+        <div className='finalOutput hide getHeight'
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0'}}>
+          <div ref={finalOutputRef} className='offsetBox'></div>
+          <div className='box'>
           {Object.entries(finalOutput).length != 0 &&
-            <Row style={style2} >
-              <Col xs={12} md={12} lg={12}>
-                <div className="panel large-panel">
-                  <FinalOutput />
-                </div>
-              </Col>
-            </Row>
-        }
-        </Row>
-      </Container>
+            <Container fluid className="custom-container">
+              <Row >
+                <Col xs={12} md={12} lg={12}>
+                  <div className="panel large-panel">
+                    <FinalOutput />
+                  </div>
+                </Col>
+              </Row>
+            </Container> }
+          </div>
+        </div>
+    </div>
     </contexts.App.provider>
   );
 };

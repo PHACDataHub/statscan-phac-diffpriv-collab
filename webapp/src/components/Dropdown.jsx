@@ -1,14 +1,13 @@
 import React, { useContext,useEffect } from 'react'
 import { Form } from 'react-bootstrap'
 import { contexts } from '../contexts/AppContext'
+import { classNames } from '../initialStates';
 
 function Dropdown() {
 
   const { noiseType,setNoiseType,submittedData } = useContext(contexts.App.context);
   const disabled = Object.keys(submittedData).length === 0 ? true : false;
-    useEffect(() => {
-      window.scrollTo({top:document.getElementsByClassName("fade")[1].offsetTop});
-  }, []);
+
   return (
     <div>
         <Form.Group controlId="noiseTypeDropdown">

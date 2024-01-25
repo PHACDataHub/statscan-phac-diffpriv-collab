@@ -37,7 +37,7 @@ function LaplaceDistPlot() {
             marker: {color: 'red'},
           }
         ]}
-        layout={ {width: 400, height: 400, title: `${noiseType == "laplace" ? "Laplace" : "Gaussian"} Distribution`} }
+        layout={ {width: 350, height: 350, title: `${noiseType == "laplace" ? "Laplace" : "Gaussian"} Distribution`} }
       />
     </>
   )

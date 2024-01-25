@@ -2,17 +2,20 @@ import React, { useContext } from 'react';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { contexts } from '../contexts/AppContext';
+import { classNames } from '../initialStates';
 
 const SurveyResults = () => {
   const { submittedData,noisyData,setFinalOutput } = useContext(contexts.App.context);
+  const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
   const goBack = () => {
-    window.scrollTo({top:document.getElementsByClassName("fade")[0].offsetTop});
+    window.scrollTo({top:height,behavior:"smooth"});
   }
 
   const confirmChange = () => {
     setFinalOutput(noisyData);
-    window.scrollTo({top:document.getElementsByClassName("fade")[2].offsetTop});
+    document.getElementsByClassName('finalOutput')[0].classList.replace('hide','show');
+    window.scrollTo({top:height*3,behavior:"smooth"});
   }
 
   const renderTable = (idx, label, submittedValue, noisyValue) => (
