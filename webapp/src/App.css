@@ -1,12 +1,22 @@
+html,
 body {
   margin: 0;
+  padding: 0;
   color: #000;
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
 }
 
-.custom-container {
-  width: 80%;
-  margin: 0 auto; /* Center the container */
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .content {
@@ -24,13 +34,50 @@ body {
 
 .large-panel {
   background-color: #f0f0f0;
-  flex: 0 0 70%; /* Adjust the width of the large panel */
 }
 
 .small-panel {
   background-color: #e0e0e0;
   flex: 0 0 30%; /* Adjust the width of the small panels */
   margin-left: 15px; /* Add some space between the small panels */
+}
+
+.custom-container {
+  width: 100%;
+  margin: 0 auto; /* Center the container */
+}
+
+.box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  transform: translate(-50%, -50%);
+}
+
+.offsetBox {
+  position: absolute;
+  height: 85%; 
+  width: 1%; 
+  background-color: rgb(4, 57, 105);
+  top: 7.5%;
+  opacity: 0;
+}
+
+.sidebar {
+  position: fixed;
+  height: 100%; 
+  width: 5%; 
+  background-color: #00203FFF;
+  z-index: 1000;
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
 }
 
 /* Add a media query to stack small panels on smaller screens */
@@ -44,19 +91,3 @@ body {
   }
 }
 
-.fade {
-  animation: fade ease both;
-  animation-timeline: view();
-}
-
-@keyframes fade {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-}

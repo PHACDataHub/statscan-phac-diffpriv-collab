@@ -73,7 +73,6 @@ const HealthSurveyForm = () => {
       const copiedFormData = JSON.parse(JSON.stringify(formData));
       const filledAndValid = isFormFilledAndValid(copiedFormData);
       const whichFunc = filledAndValid == true ? handleFormSubmit : setFormData;
-      console.log(filledAndValid);
       setFilledAndValid(filledAndValid);
       whichFunc(copiedFormData);
     }
@@ -117,11 +116,11 @@ const HealthSurveyForm = () => {
   return (
     <div>
       <h3>Health Survey Form</h3>
-      <Form onSubmit={submitForm}>
+      <Form /*onSubmit={submitForm}*/>
         {
           formGenerator(formData)
         }
-        <Button type="submit" variant="primary" size="lg" active>
+        <Button type="button" variant="primary" size="lg" active onClick={submitForm}>
           Submit
         </Button>
         <Button type="button" variant="secondary" size="lg" active onClick={handleFormReset}>
