@@ -11,7 +11,7 @@ function Dropdown() {
   return (
     <div>
         <Form.Group controlId="noiseTypeDropdown">
-            <Form.Label>Noise Type :</Form.Label>
+            <Form.Label style={{fontSize:"large"}}>Noise Type :</Form.Label>
             <Form.Control
                 as="select"
                 value={noiseType}

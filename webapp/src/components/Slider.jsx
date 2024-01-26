@@ -16,12 +16,14 @@ function Slider({ type }) {
   }
 
   const disabled = Object.keys(submittedData).length === 0 ? true : false;
-  const showEpsilon = type === EPSILON ? { display : "block" } : { display : "none" }
-  const showSensitivity = type === SENSITIVITY ? { display : "block" } : { display : "none" }
+  const showEpsilon = type === EPSILON ? { display : "flex" } : { display : "none" }
+  const showSensitivity = type === SENSITIVITY ? { display : "flex" } : { display : "none" }
   return (
     <div>
       <section style = { showEpsilon }>{EPSILON} : {epsilon}</section>
-      <input id={type} type="range" min={max_min_step[type][0]} max={max_min_step[type][1]} step={max_min_step[type][2]} value = {type === EPSILON ? epsilon : sensitivity} onChange={handleChange} disabled={disabled}/>
+      <input id={type} type="range" min={max_min_step[type][0]} max={max_min_step[type][1]} 
+              step={max_min_step[type][2]} value = {type === EPSILON ? epsilon : sensitivity} 
+              onChange={handleChange} disabled={disabled} style={{width:'120px'}}/>
       <section style = { showSensitivity }>{SENSITIVITY} : {sensitivity}</section>
     </div>
   );

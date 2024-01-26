@@ -8,8 +8,8 @@ import { classNames } from '../initialStates';
 function FinalOutput() {
   let { finalOutput } = useContext(contexts.App.context);
 
-  finalOutput = JSON.stringify(finalOutput).replaceAll(",",",\n")
-                                           .replaceAll("{","{\n")
+  finalOutput = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
+                                           .replaceAll("{","{\n\t")
                                            .replaceAll("}","\n}")
                                            .replaceAll(":","  :  ")
 

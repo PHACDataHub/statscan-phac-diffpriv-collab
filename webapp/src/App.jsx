@@ -10,9 +10,12 @@ import HealthSurveyForm from './components/HealthSurveyForm';
 import FinalOutput from './components/FinalOutput'
 import './App.css';
 import IntermediateResults from './components/IntermediateResults';
+//import {observer,pageObserver} from './components/IntersectionObservers';
 
 const App = () => {
   const formRef = useRef(null);
+  const pages = useRef(null);
+  const previousWidth = useRef('25%');
   const submittedDataRef = useRef(null);
   const finalOutputRef = useRef(null);
   const [formData, setFormData] = useState(initFormState);
@@ -47,7 +50,7 @@ const App = () => {
     setSensitivity(1.0);
     setFilledAndValid(false);
     setFinalOutput({});
-    for(let x = document.getElementsByClassName("show").length - 1; x >= 0; x--){
+    for(let x = document.getElementsByClassName("show").length - 1; x >= 1; x--){
       document.getElementsByClassName("show")[x].classList.replace("show","hide");
     }
   };
@@ -57,6 +60,12 @@ const App = () => {
     root : null,
     rootMargin : "0px",
     threshold: threshold
+  }
+
+  const options2 = {
+    root : null,
+    rootMargin : "0px",
+    threshold: 0.70
   }
 
   const callback = (entries,observer) => {
@@ -82,23 +91,51 @@ const App = () => {
       });
     }
  
-  const formObserver = new IntersectionObserver(callback,options);
-  const submittedDataObserver = new IntersectionObserver(callback,options);
-  const finalOutputObserver = new IntersectionObserver(callback,options);
+  const callback2 = (entries,observer) => {
+    const el = document.getElementsByClassName('progressbar')[0];
+    entries.forEach(entry => {
+        const fromWidth = previousWidth.current;
+        let toWidth = previousWidth.current;
+        const timing = {duration: 500,iterations: 1};
+        if(entry.target.classList.contains('page1') && entry.isIntersecting){
+          toWidth = '25%' ;
+        }
+        else if(entry.target.classList.contains('form') && entry.isIntersecting){
+          toWidth = '50%';
+        }
+        else if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
+          toWidth = '75%';
+        }
+        else if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
+          toWidth = '100%';
+        }
+        console.log(fromWidth,toWidth);
+        document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
+        previousWidth.current = toWidth;          
+        el.style.width = toWidth;
+    })
+  }
+
+  const observer = new IntersectionObserver(callback,options);
+  const pageObserver = new IntersectionObserver(callback2,options2);
 
   useEffect(() => {
+    if(pages.current){
+      pageObserver.observe(document.getElementsByClassName('page1')[0]);
+      pageObserver.observe(document.getElementsByClassName('form')[0]);
+      pageObserver.observe(document.getElementsByClassName('submittedData')[0]);
+      pageObserver.observe(document.getElementsByClassName('finalOutput')[0]);
+    }
     if(formRef.current){
-      formObserver.observe(formRef.current);
+      observer.observe(formRef.current);
     }
 
     if(submittedDataRef.current){
-      //submittedDataObserver.observe(submittedDataRef.current);
-      formObserver.observe(submittedDataRef.current);
+      observer.observe(submittedDataRef.current);
     }
 
     if(finalOutputRef.current){
-      //finalOutputObserver.observe(finalOutputRef.current);
-      formObserver.observe(finalOutputRef.current);
+      observer.observe(finalOutputRef.current);
     }
 
     if(filledAndValid && submitted > 0){
@@ -106,12 +143,13 @@ const App = () => {
       const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
       setNoisyData(noisyData);
     }
+
+    //Clean up function -> Disconnect observer before component re/unmounts
     return () => {
-      formObserver.disconnect();
-      submittedDataObserver.disconnect();
-      finalOutputObserver.disconnect();
+      observer.disconnect();
+      pageObserver.disconnect();
     }
-  }, [formRef.current, submittedDataRef.current, finalOutputRef.current,
+  }, [pages.current, formRef.current, submittedDataRef.current, finalOutputRef.current,
       formData, sensitivity, epsilon, noiseType]);
 
   const contextValues = {formData,setFormData,
@@ -129,11 +167,12 @@ const App = () => {
 
   return (
     <contexts.App.provider value={contextValues}>
-    <div style={{ height: '100%',width: '100%'}}>
+    <div ref={pages} style={{ height: '100%',width: '100%'}}>
+        <div className='progressbar'></div>
         <div className='sidebar'></div>
-        <div style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0'}}></div>
-        <div className='form getHeight'  
-          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0'}}>
+        <div className='page1' style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
+        <div className='form show getHeight'  
+          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={formRef} className='offsetBox'></div>
           <div className='box'>
              <Container fluid className="custom-container">
@@ -148,7 +187,7 @@ const App = () => {
           </div>
         </div>
         <div className='submittedData hide getHeight'  
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
           <div ref={submittedDataRef} className='offsetBox'></div>
           <div className='box'>
           {Object.entries(submittedData).length != 0 &&
@@ -156,7 +195,7 @@ const App = () => {
           </div>
         </div>
         <div className='finalOutput hide getHeight'
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={finalOutputRef} className='offsetBox'></div>
           <div className='box'>
           {Object.entries(finalOutput).length != 0 &&

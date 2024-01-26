@@ -23,7 +23,7 @@ const SurveyResults = () => {
           <th>{idx + 1}</th>
           <th>{submittedValue.label}</th>
           <th>{submittedValue.value}</th>
-          <th>{noisyValue}</th>
+          <th>{noisyValue == Infinity ? 'Ꝏ' : (noisyValue == -Infinity ? '-Ꝏ' : noisyValue)}</th>
         </tr>
   );
 
