@@ -28,8 +28,7 @@ const SurveyResults = () => {
   );
 
   return (
-    <>
-      <div className="panel small-panel">
+      <div className="panel small-panel intermediateres">
         <Table striped bordered hover variant="dark">
           <thead>
             <tr>
@@ -45,14 +44,14 @@ const SurveyResults = () => {
             )}
           </tbody>
         </Table>
-        <Button type="button" variant="primary" size="lg" active onClick={goBack}>
-          Back To Form
+        <Button type="button" variant="success" size="md" active onClick={confirmChange}>
+          Confirm Changes ✔
         </Button>
-        <Button type="button" variant="primary" size="lg" active onClick={confirmChange}>
-          Confirm Changes
+        {'\t'}
+        <Button type="button" variant="warning" size="md" active onClick={goBack}>
+          Back To Form ⬆
         </Button>
       </div>
-    </>
   );
 };
 

@@ -177,9 +177,9 @@ const App = () => {
           <div className='box'>
              <Container fluid className="custom-container">
               <Row>
-                <Col xs={12} md={12} lg={12}>
-                  <div className="panel large-panel">
-                  <HealthSurveyForm />
+                <Col sm={12} md={12} lg={12}>
+                  <div className="panel large-panel" style={{backgroundColor: '#00203f',color: 'white',border: 'solid white',borderRadius:'10px'}}>
+                    <HealthSurveyForm />
                   </div>
                 </Col>
               </Row>
@@ -198,16 +198,10 @@ const App = () => {
          style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={finalOutputRef} className='offsetBox'></div>
           <div className='box'>
-          {Object.entries(finalOutput).length != 0 &&
-            <Container fluid className="custom-container">
-              <Row >
-                <Col xs={12} md={12} lg={12}>
-                  <div className="panel large-panel">
+              {Object.entries(finalOutput).length != 0 &&
+                  <div className="panel large-panel" style={{backgroundColor: '#ADEFD1FF',color: 'white',border: 'solid #00203f',borderRadius:'10px'}}>
                     <FinalOutput />
-                  </div>
-                </Col>
-              </Row>
-            </Container> }
+                  </div> }
           </div>
         </div>
     </div>

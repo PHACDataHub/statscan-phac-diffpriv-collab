@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -90,20 +91,20 @@ const HealthSurveyForm = () => {
       const className = Value.border ? "border-danger border-2" : "" ;
       if(Value.type == "number"){
         return <Form.Group as={Row} className="mb-1" key={Key+Value.type}>
-                  <Form.Label column sm="4" key = {Key}>
+                  <Form.Label column xs="7" key = {Key}>
                     {Value.label}
                   </Form.Label>
-                  <Col sm="5" >
+                  <Col >
                     <Form.Control type={Value.type} key={Value} name={Key} value={Value.value} onChange={handleChange} className={className} />
                   </Col>
                 </Form.Group>
       }
       else if(Value.type == "select"){
         return  <Form.Group as={Row} className="mb-1" key={Key+Value.type}>
-                  <Form.Label column sm="4" key = {Key}>
+                  <Form.Label column xs="7" key = {Key}>
                     {Value.label}
                   </Form.Label>
-                  <Col sm="5" >
+                  <Col >
                     <Form.Select name={Key} value={Value.value} onChange={handleChange} className={className}>
                       { Value.values.map(el => <option key={el.label} value={el.value}>{el.label}</option>) }
                     </Form.Select>
@@ -114,21 +115,23 @@ const HealthSurveyForm = () => {
   }  
 
   return (
-    <div>
+    <div style={{height:'80%'}}>
       <h3>Health Survey Form</h3>
       <Form /*onSubmit={submitForm}*/>
         {
           formGenerator(formData)
         }
-        <Button type="button" variant="primary" size="lg" active onClick={submitForm}>
-          Submit
-        </Button>
-        <Button type="button" variant="secondary" size="lg" active onClick={handleFormReset}>
-          Reset
-        </Button>
-        <Button type="button" variant="secondary" size="lg" active onClick={randomizeFormData}>
-          Randomize
-        </Button>
+        <ButtonGroup aria-label="Basic example">
+          <Button variant="outline-success" size="md" active onClick={submitForm}>
+            Submit
+          </Button>
+          <Button type="button" variant="outline-warning" size="md" active onClick={handleFormReset}>
+            Reset
+          </Button>
+          <Button type="button" variant="outline-info" size="md" active onClick={randomizeFormData}>
+            Randomize
+          </Button>
+        </ButtonGroup>
       </Form>
     </div>
   );
