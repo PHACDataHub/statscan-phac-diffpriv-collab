@@ -41,16 +41,15 @@ function FinalOutput() {
           />   
           </Col>
         </Row>
-        <Row>
-          <Col>
-            <Button type="button" variant="primary" size="lg" active onClick={tuneNoise}>
-              Back to Tuning Noise
+        <br></br>
+        <div className="d-grid gap-2">
+            <Button type="button" variant="warning" size="lg" active onClick={tuneNoise}>
+              Back to Tuning Noise ⬆
             </Button>
             {/* <Button type="button" variant="primary" size="lg" active onClick={backToForm}>
               Back To Form
             </Button> */}
-          </Col>
-        </Row>
+        </div>
       </Container>
     </div>
   )

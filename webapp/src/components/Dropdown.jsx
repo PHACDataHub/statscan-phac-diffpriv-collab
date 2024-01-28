@@ -2,6 +2,7 @@ import React, { useContext,useEffect } from 'react'
 import { Form } from 'react-bootstrap'
 import { contexts } from '../contexts/AppContext'
 import { classNames } from '../initialStates';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 function Dropdown() {
 
@@ -10,18 +11,17 @@ function Dropdown() {
 
   return (
     <div>
-        <Form.Group controlId="noiseTypeDropdown">
-            <Form.Label style={{fontSize:"large"}}>Noise Type :</Form.Label>
-            <Form.Control
-                as="select"
+        <InputGroup className="mb-3" data-bs-theme="dark">
+          <InputGroup.Text>Noise Type :</InputGroup.Text>
+            <Form.Select
                 value={noiseType}
                 onChange={(e) => setNoiseType(e.target.value)}
                 disabled={disabled}
             >
-                <option value="laplace">Laplace Noise</option>
-                <option value="gaussian">Gaussian Noise</option>
-            </Form.Control>
-        </Form.Group>
+                <option value="laplace">Laplace</option>
+                <option value="gaussian">Gaussian</option>
+            </Form.Select>
+        </InputGroup>
     </div>
   )
 }

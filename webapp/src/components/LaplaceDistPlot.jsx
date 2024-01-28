@@ -34,10 +34,35 @@ function LaplaceDistPlot() {
             y: x.map(el => noiseType === "laplace" ? laplacePDF(el) : gaussianPDF(el)),
             type: 'scatter',
             mode: 'lines',
-            marker: {color: 'red'},
+            marker: {color: 'rgb(173, 239, 209)'},
           }
         ]}
-        layout={ {width: 350, height: 350, title: `${noiseType == "laplace" ? "Laplace" : "Gaussian"} Distribution`} }
+        layout={ {width: 350, height: 350, 
+              font: {
+              size: 10,
+              color: 'white'
+              },
+              title: `${noiseType == "laplace" ? "Laplace" : "Gaussian"} Distribution`,
+              plot_bgcolor: '#00203FFF',
+              paper_bgcolor: '#00203FFF',
+              yaxis: {
+                  tickcolor: "rgba(255,0,0,0.75)",
+                  tickwidth: 7,
+                  
+                  gridcolor: "rgba(128,128,128,0.25)",
+                  gridwidth: 3,
+                  
+                  zerolinecolor: "green",
+                  zerolinewidth: 2,
+                },
+              xaxis: {
+                  tickcolor: "blue",
+                  tickwidth: 3,
+                  
+                  gridcolor: "rgba(128,128,128,0.25)",
+                  gridwidth: 2,      
+              }
+             } }
       />
     </>
   )

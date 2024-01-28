@@ -19,10 +19,10 @@ function IntermediateResults() {
   return (
     <Container fluid className="custom-container">
         <Row>
-            <Col xs={12} md={9} lg={9}>
-              <SurveyResults />
+            <Col xs={8}>
+              <SurveyResults className="intermediateresults"/>
             </Col>
-            <Col xs={12} md={9} lg={3}>
+            <Col xs={4}>
               <Dropdown />
               <br></br>
               <LaplaceDistPlot />

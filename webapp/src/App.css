@@ -38,7 +38,7 @@ body {
 
 .small-panel {
   background-color: #e0e0e0;
-  flex: 0 0 30%; /* Adjust the width of the small panels */
+  /* flex: 0 0 30%; Adjust the width of the small panels */
   margin-left: 15px; /* Add some space between the small panels */
 }
 
@@ -76,8 +76,15 @@ body {
   position: fixed;
   height: 10px; 
   width: 100%; 
-  background-color: rgb(14, 6, 116);
+  background-color: rgb(79, 68, 247);
   z-index: 10000;
+}
+
+.intermediateres {
+  font-size: 12px;
+  background-color: #adefd1;
+  border: solid #00203f;
+  border-radius: 10px;
 }
 
 @keyframes slidein {
@@ -99,13 +106,24 @@ body {
 }
 
 /* Add a media query to stack small panels on smaller screens */
-@media (max-width: 768px) {
+/* @media (max-width: 0px) {
   .content {
     flex-direction: column;
   }
 
   .small-panel {
-    margin-left: 0; /* Remove margin on smaller screens */
+    margin-left: 0; Remove margin on smaller screens
+  }
+} */
+ @media (max-width: 1200px){
+  .form{
+    font-size: 13px;
+    font-weight: bold;
   }
 }
 
+@media (max-width: 1700px){
+  .intermediateres{
+    font-size: 12px;
+  }
+}
