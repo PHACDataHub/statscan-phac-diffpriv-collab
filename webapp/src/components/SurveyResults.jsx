@@ -21,7 +21,7 @@ const SurveyResults = () => {
   const renderTable = (idx, label, submittedValue, noisyValue) => (
         <tr key={label}>
           <th>{idx + 1}</th>
-          <th>{submittedValue.label}</th>
+          <th>{submittedValue.label.split("(")[0].split(":")[0]}</th>
           <th>{submittedValue.value}</th>
           <th>{noisyValue == Infinity ? 'Ꝏ' : (noisyValue == -Infinity ? '-Ꝏ' : noisyValue)}</th>
         </tr>
@@ -34,8 +34,8 @@ const SurveyResults = () => {
             <tr>
               <th>#</th>
               <th>Field</th>
-              <th>Submitted Value</th>
-              <th>Noisy Value</th>
+              <th>Submitted</th>
+              <th>Noised</th>
             </tr>
           </thead>
           <tbody>
