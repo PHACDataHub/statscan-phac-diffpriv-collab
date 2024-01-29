@@ -12,7 +12,7 @@ function Dropdown() {
   return (
     <div>
         <InputGroup className="mb-3" data-bs-theme="dark">
-          <InputGroup.Text>Noise Type :</InputGroup.Text>
+          <InputGroup.Text>Noise :</InputGroup.Text>
             <Form.Select
                 value={noiseType}
                 onChange={(e) => setNoiseType(e.target.value)}
