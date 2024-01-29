@@ -92,8 +92,8 @@ const App = () => {
 
           const el = entry.target.parentElement.children[1];   
           el.style.opacity = opacity;
-          //el.style.transform = `translate(${X}%,-50%)`;
-          el.style.transform = `translate(-50%,${Y}%)`;
+          el.style.transform = `translate(${X}%,-50%)`;
+          //el.style.transform = `translate(-50%,${Y}%)`;
       });
     }
  
