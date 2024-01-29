@@ -85,9 +85,15 @@ const App = () => {
           const startX = -150;
           const endX = -50;
           const X = startX + ((endX - startX) * val);
+
+          const startY = 50;
+          const endY = -50;
+          const Y = startY + ((endY - startY) * val);
+
           const el = entry.target.parentElement.children[1];   
           el.style.opacity = opacity;
-          el.style.transform = `translate(${X}%,-50%)`;
+          //el.style.transform = `translate(${X}%,-50%)`;
+          el.style.transform = `translate(-50%,${Y}%)`;
       });
     }
  
@@ -109,7 +115,6 @@ const App = () => {
         else if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
           toWidth = '100%';
         }
-        console.log(fromWidth,toWidth);
         document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
         previousWidth.current = toWidth;          
         el.style.width = toWidth;
@@ -172,7 +177,7 @@ const App = () => {
         <div className='sidebar'></div>
         <div className='page1' style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
         <div className='form show getHeight'  
-          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0'}}>
           <div ref={formRef} className='offsetBox'></div>
           <div className='box'>
              <Container fluid className="custom-container">
@@ -187,7 +192,7 @@ const App = () => {
           </div>
         </div>
         <div className='submittedData hide getHeight'  
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0'}}>
           <div ref={submittedDataRef} className='offsetBox'></div>
           <div className='box'>
           {Object.entries(submittedData).length != 0 &&
@@ -195,7 +200,7 @@ const App = () => {
           </div>
         </div>
         <div className='finalOutput hide getHeight'
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0'}}>
           <div ref={finalOutputRef} className='offsetBox'></div>
           <div className='box'>
               {Object.entries(finalOutput).length != 0 &&
