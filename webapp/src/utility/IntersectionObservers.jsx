@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-const previousWidth = useRef('25%');  
 
 const inc = 0.01;
 const threshold = [...Array(1/inc),1].map((_, i) => (i*inc))
@@ -38,29 +37,31 @@ const callback = (entries,observer) => {
     });
 }
 
-const callback2 = (entries,observer) => {
-const el = document.getElementsByClassName('progressbar')[0];
-entries.forEach(entry => {
-    const fromWidth = previousWidth.current;
-    let toWidth = previousWidth.current;
-    const timing = {duration: 500,iterations: 1};
-    if(entry.target.classList.contains('page1') && entry.isIntersecting){
-        toWidth = '25%' ;
-    }
-    else if(entry.target.classList.contains('form') && entry.isIntersecting){
-        toWidth = '50%';
-    }
-    else if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
-        toWidth = '75%';
-    }
-    else if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
-        toWidth = '100%';
-    }
-    console.log(fromWidth,toWidth);
-    document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
-    previousWidth.current = toWidth;          
-    el.style.width = toWidth;
-})
+export const callback2 = (entries,observer) => {
+    const el = document.getElementsByClassName('progressbar')[0];
+    console.log(this)
+    let previousWidth = this.previousWidth;
+    entries.forEach(entry => {
+        const fromWidth = previousWidth.current;
+        let toWidth = previousWidth.current;
+        const timing = {duration: 500,iterations: 1};
+        if(entry.target.classList.contains('page1') && entry.isIntersecting){
+            toWidth = '25%' ;
+        }
+        else if(entry.target.classList.contains('form') && entry.isIntersecting){
+            toWidth = '50%';
+        }
+        else if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
+            toWidth = '75%';
+        }
+        else if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
+            toWidth = '100%';
+        }
+        console.log(fromWidth,toWidth);
+        document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
+        previousWidth.current = toWidth;          
+        el.style.width = toWidth;
+    })
 }
 
 export const observer = new IntersectionObserver(callback,options);
