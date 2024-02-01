@@ -10,14 +10,17 @@ import HealthSurveyForm from './components/HealthSurveyForm';
 import FinalOutput from './components/FinalOutput'
 import './App.css';
 import IntermediateResults from './components/IntermediateResults';
-//import {observer,pageObserver} from './components/IntersectionObservers';
+import Qbox from './components/Qbox';
+import Sidebar from './components/Sidebar';
 
 const App = () => {
   const formRef = useRef(null);
   const pages = useRef(null);
+  const qboxRef = useRef(null);
   const previousWidth = useRef('25%');
   const submittedDataRef = useRef(null);
   const finalOutputRef = useRef(null);
+  const [pageNo,setPageNo] = useState(0);
   const [formData, setFormData] = useState(initFormState);
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
@@ -65,7 +68,7 @@ const App = () => {
   const options2 = {
     root : null,
     rootMargin : "0px",
-    threshold: 0.70
+    threshold: [0.7]
   }
 
   const callback = (entries,observer) => {
@@ -100,23 +103,38 @@ const App = () => {
   const callback2 = (entries,observer) => {
     const el = document.getElementsByClassName('progressbar')[0];
     entries.forEach(entry => {
+      //console.log(entry.target,entry.isIntersecting,entry.intersectionRatio);
         const fromWidth = previousWidth.current;
         let toWidth = previousWidth.current;
         const timing = {duration: 500,iterations: 1};
+        let showQBox = 'block';
+        let pageNoCopy = qboxRef.current.pageNo;
         if(entry.target.classList.contains('page1') && entry.isIntersecting){
           toWidth = '25%' ;
+          showQBox = 'none';
+          pageNoCopy = 1;
         }
-        else if(entry.target.classList.contains('form') && entry.isIntersecting){
+        if(entry.target.classList.contains('form') && entry.isIntersecting){
           toWidth = '50%';
+          showQBox = 'block'; 
+          pageNoCopy = 2;
         }
-        else if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
+        if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
           toWidth = '75%';
+          showQBox = 'block'; 
+          pageNoCopy = 3;
         }
-        else if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
+        if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
           toWidth = '100%';
+          showQBox = 'block'; 
+          pageNoCopy = 4;
         }
         document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
         previousWidth.current = toWidth;          
+        qboxRef.current.style.display = (pageNoCopy >= 2) ? 'block' : 'none';
+        qboxRef.current.pageNo = pageNoCopy;
+        setPageNo(pageNoCopy);
+        console.log(pageNoCopy);
         el.style.width = toWidth;
     })
   }
@@ -130,6 +148,7 @@ const App = () => {
       pageObserver.observe(document.getElementsByClassName('form')[0]);
       pageObserver.observe(document.getElementsByClassName('submittedData')[0]);
       pageObserver.observe(document.getElementsByClassName('finalOutput')[0]);
+      qboxRef.current.pageNo = 1;
     }
     if(formRef.current){
       observer.observe(formRef.current);
@@ -168,16 +187,18 @@ const App = () => {
                          sensitivity,setSensitivity,
                          max_min_step,
                          setFilledAndValid,
-                         finalOutput,setFinalOutput};
+                         finalOutput,setFinalOutput,
+                         qboxRef,pageNo,setPageNo};
 
   return (
     <contexts.App.provider value={contextValues}>
     <div ref={pages} style={{ height: '100%',width: '100%'}}>
+        <Qbox />
         <div className='progressbar'></div>
-        <div className='sidebar'></div>
+        <Sidebar />
         <div className='page1' style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
         <div className='form show getHeight'  
-          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0'}}>
+          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={formRef} className='offsetBox'></div>
           <div className='box'>
              <Container fluid className="custom-container">
@@ -192,7 +213,7 @@ const App = () => {
           </div>
         </div>
         <div className='submittedData hide getHeight'  
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
           <div ref={submittedDataRef} className='offsetBox'></div>
           <div className='box'>
           {Object.entries(submittedData).length != 0 &&
@@ -200,7 +221,7 @@ const App = () => {
           </div>
         </div>
         <div className='finalOutput hide getHeight'
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0'}}>
+         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={finalOutputRef} className='offsetBox'></div>
           <div className='box'>
               {Object.entries(finalOutput).length != 0 &&
