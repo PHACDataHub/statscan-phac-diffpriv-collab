@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import { useFormContext } from './FormContext';
+import { initFormState } from './initialStates';
 import CoinFlip from './CoinFlip';
 import './App.css';
 
