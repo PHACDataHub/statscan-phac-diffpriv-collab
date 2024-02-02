@@ -6,7 +6,7 @@ body {
 
 .custom-container {
   width: 80%;
-  margin: 0 auto; /* Center the container */
+  margin: 0 auto;
 }
 
 .content {
@@ -23,11 +23,12 @@ body {
 }
 
 .scrollable-panel {
-  max-height: 300px; /* Adjust the maximum height as needed */
+  max-height: 300px;
   overflow-y: auto;
-  border: 1px solid #ddd; /* Add a border for better visibility */
+  border: 1px solid #ddd;
   padding: 10px;
   margin-bottom: 20px;
+	background-color: red;
 }
 
 .scrollable-panel h2 {
@@ -36,22 +37,21 @@ body {
 
 .large-panel {
   background-color: #f0f0f0;
-  flex: 0 0 70%; /* Adjust the width of the large panel */
+  flex: 0 0 70%;
 }
 
 .small-panel {
   background-color: #e0e0e0;
-  flex: 0 0 30%; /* Adjust the width of the small panels */
-  margin-left: 15px; /* Add some space between the small panels */
+  flex: 0 0 30%;
+  margin-left: 15px;
 }
 
-/* Add a media query to stack small panels on smaller screens */
 @media (max-width: 768px) {
   .content {
     flex-direction: column;
   }
 
   .small-panel {
-    margin-left: 0; /* Remove margin on smaller screens */
+    margin-left: 0;
   }
 }
