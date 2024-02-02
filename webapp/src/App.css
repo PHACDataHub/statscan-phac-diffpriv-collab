@@ -22,6 +22,18 @@ body {
   margin-bottom: 15px;
 }
 
+.scrollable-panel {
+  max-height: 300px; /* Adjust the maximum height as needed */
+  overflow-y: auto;
+  border: 1px solid #ddd; /* Add a border for better visibility */
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.scrollable-panel h2 {
+  margin-bottom: 10px;
+}
+
 .large-panel {
   background-color: #f0f0f0;
   flex: 0 0 70%; /* Adjust the width of the large panel */
