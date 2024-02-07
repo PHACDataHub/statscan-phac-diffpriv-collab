@@ -11,6 +11,15 @@ const addDpGaussianNoise = (originalValue, sensitivity, epsilon) => {
   return parseFloat(originalValue) + noise;
 };
 
+export const randomizeResponse = (originalIndex, values) => {
+  const coinFlip = Math.random() < 0.5;
+  if (coinFlip) {
+    const randomIndex = Math.floor(Math.random() * values.length);
+    return randomIndex;
+  } 
+  return originalIndex;
+}
+
 export const addNoise = (originalValue,sensitivity, epsilon, noiseType) => {
   switch(noiseType){
     case 'laplace' :
