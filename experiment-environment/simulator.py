@@ -115,7 +115,55 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full)
     
     # Do whatever outputs...
-    ...
+    filename = 'combined_results.csv'
+    query_type_column = 'query_type'
+    
+    original_data = query_results[1][0].copy()
+    df_original = pd.DataFrame()
+    for key in original_data:
+        row = original_data[key].copy()
+        row[query_type_column] = 'original_data_' + key
+        df_original = pd.concat([df_original,pd.json_normalize(row)])
+    df_original = df_original.reset_index(drop=True)
+
+    gdp_result = query_results[1][0].copy()
+    df_gdp = pd.DataFrame()
+    for key in gdp_result:
+        row = gdp_result[key].copy()
+        row[query_type_column] = 'gdp_result_' + key
+        df_gdp = pd.concat([df_gdp,pd.json_normalize(row)])
+    df_gdp = df_gdp.reset_index(drop=True)
+    # df_gdp.to_csv('gdp_results.csv')
+
+    ldp_result = query_results[1][0].copy()
+    df_ldp = pd.DataFrame()
+    for key in ldp_result:
+        row = ldp_result[key].copy()
+        row[query_type_column] = 'ldp_result_' + key
+        df_ldp = pd.concat([df_ldp,pd.json_normalize(row)])
+    df_ldp = df_ldp.reset_index(drop=True)
+    # df_ldp.to_csv('ldp_results.csv')
+
+    sdp_result = query_results[2][0].copy()
+    df_sdp = pd.DataFrame()
+    for key in sdp_result:
+        row = sdp_result[key].copy()
+        row[query_type_column] = 'sdp_result_' + key
+        df_sdp = pd.concat([df_sdp,pd.json_normalize(row)])
+    df_sdp = df_sdp.reset_index(drop=True)
+    # df_sdp.to_csv('sdp_results.csv')
+
+
+    cols = df_original.columns.tolist()
+    cols.remove(query_type_column)
+    for column in cols:
+        df_gdp['absolute_error_'+column] = abs(df_original[column] - df_gdp[column])
+        df_ldp['absolute_error_'+column] = abs(df_original[column] - df_ldp[column])
+        # df_sdp['absolute_error_'+column] = abs(df_original[column] - df_sdp[column])
+        df_original['absolute_error_'+column] = abs(df_original[column] - df_original[column])
+
+    df = pd.concat([df_gdp, df_ldp, df_sdp, df_original])
+    df.reset_index(drop=True).to_csv(filename)
     
     
     return
