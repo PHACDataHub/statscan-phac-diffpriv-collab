@@ -64,7 +64,7 @@ def print_report_details(report):
     print(report.get_details(property_name='Column Shapes'))
 
 
-def evaluate_synthetic_dataset(df, df_transformed):
+def evaluate_synthetic_dataset(df, df_transformed, filepath: str = 'quality_report.pkl'):
     real_data = pd.DataFrame(df)
     transformed_data = pd.DataFrame(df_transformed)
 
@@ -83,7 +83,7 @@ def evaluate_synthetic_dataset(df, df_transformed):
     
     
     # Save the report
-    quality_report.save(filepath='quality_report.pkl')
+    quality_report.save(filepath)
     
     return fig_shapes , fig_pairs
 
