@@ -107,8 +107,20 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     for (dataset, apply_gdp) in [(df, True), (ldp_data_full, False), (sdp_data_full, False)]:
         query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
     
-    # Get GDP results
-    ...
+    # Get Absolute error results
+    col_list = df.columns.tolist()
+    col_list.remove('ID')
+
+    df = df.sort_values(by='ID', ascending=True).reset_index(drop=True)
+    sdp_data_full_c = sdp_data_full.sort_values(by='ID', ascending=True).reset_index(drop=True)
+    ldp_data_full_c = ldp_data_full.sort_values(by='ID', ascending=True).reset_index(drop=True)
+
+    for column in col_list:
+        sdp_data_full_c['absolute_error_'+column] = abs(df[column] - sdp_data_full_c[column])
+        ldp_data_full_c['absolute_error_'+column] = abs(df[column] - ldp_data_full_c[column])
+
+    sdp_data_full_c.reset_index(drop=True).to_csv('sdp_dataset_results.csv')
+    ldp_data_full_c.reset_index(drop=True).to_csv('ldp_dataset_results.csv')
     
     # Run evaluation scripts
     sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full)
