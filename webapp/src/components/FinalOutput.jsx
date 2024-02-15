@@ -8,7 +8,7 @@ import { classNames } from '../initialStates';
 function FinalOutput() {
   let { finalOutput } = useContext(contexts.App.context);
 
-  finalOutput = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
+  let finalOutputParsed = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
                                            .replaceAll("{","{\n\t")
                                            .replaceAll("}","\n}")
                                            .replaceAll(":","  :  ")
@@ -26,6 +26,36 @@ function FinalOutput() {
   const tuneNoise = () => {
     window.scrollTo({top:height*2,behaviour:"smooth"})
   }
+
+  const download = (type) => {
+    console.log(type);
+    let link = '';
+    let extension = '';
+    let content = [];
+    if(type === 'json'){
+      content.push(JSON.stringify(finalOutput));
+      extension = 'json';
+    }
+    else if(type === 'csv'){
+      const keys = Object.keys(finalOutput);
+      const values = Object.values(finalOutput);
+      const headerString = keys.join(',');
+      const valueString = values.join(',');
+      const csv = [headerString,valueString].join('\r\n');
+      content.push(csv);
+      extension = 'csv';
+    }
+      let blob = new Blob(content, { type: "text/plain;charset=utf-8" });
+      let url = window.URL || window.webkitURL;
+      link = url.createObjectURL(blob);
+      let a = document.createElement("a");
+      a.download = `payload.${extension}`;
+      a.href = link;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+  }
+
   return (
     <div>
       <Container fluid>
@@ -33,7 +63,7 @@ function FinalOutput() {
           <Col xs={12} md={12} lg={12}>
           <CopyBlock
             language={"javascript"}
-            text={finalOutput}
+            text={finalOutputParsed}
             showLineNumbers={true}
             theme={dracula}
             wrapLines={true}
@@ -41,7 +71,22 @@ function FinalOutput() {
           />   
           </Col>
         </Row>
-        <br></br>
+        <Row style={{paddingTop:'7px',paddingBottom:'7px'}}>
+          <Col xs={6} md={6} lg = {6} style={{paddingRight:'3px'}}>
+            <div className="d-grid">
+                <Button type="button" variant="success" size="lg" active onClick={() => download('json')}>
+                  Download as .JSON
+                </Button>
+            </div>
+          </Col>
+          <Col xs={6} md={6} lg = {6} style={{paddingLeft:'3px'}}>
+            <div className="d-grid">
+                <Button type="button" variant="success" size="lg" active onClick={() => download('csv')}>
+                  Download as .CSV
+                </Button>
+            </div>
+          </Col>
+        </Row>
         <div className="d-grid gap-2">
             <Button type="button" variant="warning" size="lg" active onClick={tuneNoise}>
               Back to Tuning Noise ⬆
