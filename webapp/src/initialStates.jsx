@@ -82,3 +82,10 @@ export const initFormState = {
 export const classNames = {
   getHeight : "getHeight"
 }
+
+export const jsx = {
+  1 : <p>Testing page 1 jsx</p>,
+  2 : <p>Testing page 2 jsx</p>,
+  3 : <p>Testing page 3 jsx</p>,
+  4 : <p>Testing page 4 jsx</p>
+}

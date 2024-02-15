@@ -6,7 +6,6 @@ function Slider({ type }) {
   const { submittedData,epsilon,setEpsilon,sensitivity,setSensitivity,max_min_step } = useContext(contexts.App.context);
 
   const handleChange = function(e){
-    console.log(type);
     if(type == EPSILON){
       setEpsilon(e.target.valueAsNumber);
     }

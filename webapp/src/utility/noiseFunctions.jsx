@@ -14,7 +14,10 @@ const addDpGaussianNoise = (originalValue, sensitivity, epsilon) => {
 export const randomizeResponse = (originalIndex, values) => {
   const coinFlip = Math.random() < 0.5;
   if (coinFlip) {
-    const randomIndex = Math.floor(Math.random() * values.length);
+    const min = 1,max = values.length - 1;
+    const randomIndex = Math.floor(((Math.random() * (max + 1 - min)) + min));
+    //const randomIndex = Math.floor(Math.random() * (values.length));
+    console.log(randomIndex);
     return randomIndex;
   } 
   return originalIndex;
