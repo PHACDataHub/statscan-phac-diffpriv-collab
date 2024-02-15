@@ -134,7 +134,6 @@ const App = () => {
         qboxRef.current.style.display = (pageNoCopy >= 2) ? 'block' : 'none';
         qboxRef.current.pageNo = pageNoCopy;
         setPageNo(pageNoCopy);
-        console.log(pageNoCopy);
         el.style.width = toWidth;
     })
   }
