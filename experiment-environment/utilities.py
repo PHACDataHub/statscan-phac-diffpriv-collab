@@ -62,3 +62,23 @@ def convert_df_type(df: pd.DataFrame, columns_to_convert: list[str], type_name: 
     except Exception as e:
         print(e)
     return df_convert
+
+def consolidate_results(query_results, index_0, index_1, result_type):
+    """
+    consolidate the results of queries executed on a dataset.
+
+    Parameters:
+    query_results (list): A list of query results.
+    index (int): The index of the query result to consolidate.
+    result_type (str): The type of the result (e.g., 'real', 'synthetic').
+
+    Returns:
+    DataFrame: A DataFrame containing the consolidated query results.
+    """
+    
+    query_type_column = 'query_type'
+    data = query_results[index_0][index_1].copy()
+    df = pd.concat([pd.json_normalize(data[key]).\
+                    assign(**{query_type_column: result_type + key}) for key in data], \
+                    ignore_index=True)
+    return df

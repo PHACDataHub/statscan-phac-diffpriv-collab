@@ -57,6 +57,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     df_static = df[static_columns].copy()
     df_dynamic = df.drop(static_columns[:-1], axis=1)
     
+    
     # Initialize the LDP object
     ldp_module = local_dp.LocalDifferentialPrivacy(epsilon)
     # Calculate the appropriate privacy budget parameters
@@ -96,89 +97,64 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     # Get Query results for dataset, LDP, and SDP datasets
     gdp_module = global_dp.GlobalDifferentialPrivacy(epsilon)
     
-    
     # Need to combine the datasets back together for shuffle and local DP
     ldp_data_full = df_static.join(df_ldp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
 
     sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
     # Need to convert the shuffle DP columns to category
-    
+
     query_results = []
     for (dataset, apply_gdp) in [(df, True), (ldp_data_full, False), (sdp_data_full, False)]:
         query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
     
-    # Get Absolute error results
-    col_list = df.columns.tolist()
-    col_list.remove('ID')
-
-    df = df.sort_values(by='ID', ascending=True).reset_index(drop=True)
-    sdp_data_full_c = sdp_data_full.sort_values(by='ID', ascending=True).reset_index(drop=True)
-    ldp_data_full_c = ldp_data_full.sort_values(by='ID', ascending=True).reset_index(drop=True)
-
-    for column in col_list:
-        sdp_data_full_c['absolute_error_'+column] = abs(df[column] - sdp_data_full_c[column])
-        ldp_data_full_c['absolute_error_'+column] = abs(df[column] - ldp_data_full_c[column])
-
-    sdp_data_full_c.reset_index(drop=True).to_csv('sdp_dataset_results.csv')
-    ldp_data_full_c.reset_index(drop=True).to_csv('ldp_dataset_results.csv')
+    import json
+    with open('query_results.json', 'w', encoding ='utf8') as json_file: 
+        json.dump(query_results, json_file) 
+        
+    # get absolute error between original and data after applying LDP/SDP
+    evaluate.get_absolute_error(df, ldp_data_full, "results", "ldp_absolute_difference.csv", "ldp_")
+    evaluate.get_absolute_error(df, sdp_data_full, "results", "sdp_absolute_difference.csv", "sdp_")
     
     # Run evaluation scripts
-    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full)
-    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full)
+    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, "results", "ldp")
+    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, "results", "sdp")
+
+    # consolidate the results after querying and applying noise
+    df_original = utilities.consolidate_results(query_results, 0, 0, 'original_data_')
+    df_gdp = utilities.consolidate_results(query_results, 0, 1, 'gdp_result_')
+    df_ldp = utilities.consolidate_results(query_results, 1, 0, 'ldp_result_')
+    df_sdp = utilities.consolidate_results(query_results, 2, 0, 'sdp_result_')
     
-    # Do whatever outputs...
-    filename = 'combined_results.csv'
+    df_original.to_csv('results/df_original.csv')
+    df_gdp.to_csv('results/df_gdp.csv')
+    df_ldp.to_csv('results/df_ldp.csv')
+    df_sdp.to_csv('results/df_sdp.csv')
+
+    
+    column_list = df_original.columns.tolist()
     query_type_column = 'query_type'
+    column_list.remove(query_type_column)
+    for column in column_list:
+        try:
+            df_gdp['absolute_error_'+column] = abs(df_original[column] - df_gdp[column])
+            df_ldp['absolute_error_'+column] = abs(df_original[column] - df_ldp[column])
+            df_sdp['absolute_error_'+column] = abs(df_original[column] - df_sdp[column])
+        except KeyError:
+            continue
+
+    df_original = df_original.add_prefix('original_')
+    df_gdp = df_gdp.add_prefix('gdp_')
+    df_ldp = df_ldp.add_prefix('ldp_')
+    df_sdp = df_sdp.add_prefix('sdp_')
     
-    original_data = query_results[1][0].copy()
-    df_original = pd.DataFrame()
-    for key in original_data:
-        row = original_data[key].copy()
-        row[query_type_column] = 'original_data_' + key
-        df_original = pd.concat([df_original,pd.json_normalize(row)])
-    df_original = df_original.reset_index(drop=True)
-
-    gdp_result = query_results[1][0].copy()
-    df_gdp = pd.DataFrame()
-    for key in gdp_result:
-        row = gdp_result[key].copy()
-        row[query_type_column] = 'gdp_result_' + key
-        df_gdp = pd.concat([df_gdp,pd.json_normalize(row)])
-    df_gdp = df_gdp.reset_index(drop=True)
-    # df_gdp.to_csv('gdp_results.csv')
-
-    ldp_result = query_results[1][0].copy()
-    df_ldp = pd.DataFrame()
-    for key in ldp_result:
-        row = ldp_result[key].copy()
-        row[query_type_column] = 'ldp_result_' + key
-        df_ldp = pd.concat([df_ldp,pd.json_normalize(row)])
-    df_ldp = df_ldp.reset_index(drop=True)
-    # df_ldp.to_csv('ldp_results.csv')
-
-    sdp_result = query_results[2][0].copy()
-    df_sdp = pd.DataFrame()
-    for key in sdp_result:
-        row = sdp_result[key].copy()
-        row[query_type_column] = 'sdp_result_' + key
-        df_sdp = pd.concat([df_sdp,pd.json_normalize(row)])
-    df_sdp = df_sdp.reset_index(drop=True)
-    # df_sdp.to_csv('sdp_results.csv')
-
-
-    cols = df_original.columns.tolist()
-    cols.remove(query_type_column)
-    for column in cols:
-        df_gdp['absolute_error_'+column] = abs(df_original[column] - df_gdp[column])
-        df_ldp['absolute_error_'+column] = abs(df_original[column] - df_ldp[column])
-        # df_sdp['absolute_error_'+column] = abs(df_original[column] - df_sdp[column])
-        df_original['absolute_error_'+column] = abs(df_original[column] - df_original[column])
-
-    df = pd.concat([df_gdp, df_ldp, df_sdp, df_original])
-    df.reset_index(drop=True).to_csv(filename)
+    df_gdp_combined = pd.concat([df_original, df_gdp], axis=1)
+    df_ldp_combined = pd.concat([df_original, df_ldp], axis=1)
+    df_sdp_combined = pd.concat([df_original, df_sdp], axis=1)
     
+    df_gdp_combined.reset_index(drop=True).to_csv('results/gdp_query_results_abs_diff.csv')
+    df_ldp_combined.reset_index(drop=True).to_csv('results/ldp_query_results_abs_diff.csv')
+    df_sdp_combined.reset_index(drop=True).to_csv('results/sdp_query_results_abs_diff.csv')
     
-    return
 
 def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
 
