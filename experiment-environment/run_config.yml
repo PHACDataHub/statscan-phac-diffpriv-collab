@@ -37,6 +37,7 @@ weight_multiplier: 1.0
 
 query_types: [
     'sum',
+    'mean'
 ]
 
 # List of columns to convert to some specified type.
@@ -83,3 +84,32 @@ gcp_bucket_name: 'statcanbucket'
 # The folder path where the data is stored within the specified bucket.
 # Note that this path must end with a '/'
 gcp_data_folder_path: 'data/cleaned_data/'
+
+# The folder where the results will be stored
+results_dir: 'results'
+
+# Filename for storing the absolute difference between the original vs
+# data after applying LDP/SDP 
+ldp_absolute_diff_filename : 'ldp_absolute_difference.csv'
+sdp_absolute_diff_filename : 'sdp_absolute_difference.csv'
+
+# Filename for storing the absolute difference between the original query results vs
+# query results after applying LDP/SDPnoise 
+gdp_query_results_filename : 'gdp_query_results_abs_diff.csv'
+ldp_query_results_filename : 'ldp_query_results_abs_diff.csv'
+sdp_query_results_filename : 'sdp_query_results_abs_diff.csv'
+
+# Type of differential privacy for identifying the columns
+original_type : 'original_'
+gdp_type : 'gdp_'
+ldp_type : 'ldp_'
+sdp_type : 'sdp_'
+
+# Column name for identifying the query type
+query_type_column : 'query_type'
+
+quality_report_filename: 'quality_report.pkl'
+column_shape_filename: 'column_shapes.html'
+column_pair_trends_filename: 'columns_pair_trends.html'
+
+
