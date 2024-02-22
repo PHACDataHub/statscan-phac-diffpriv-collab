@@ -193,7 +193,8 @@ def get_absolute_error_queries(df_original: pd.DataFrame,
                                dp_type: str, 
                                original_prefix: str, 
                                results_dir: str, 
-                               filename: str) -> None:
+                               filename: str,
+                               query_type_column: str) -> None:
     """
     Calculate the absolute error between the original dataframe and the masked (differentially private) dataframe for specific queries.
 
@@ -204,6 +205,7 @@ def get_absolute_error_queries(df_original: pd.DataFrame,
         original_prefix (str): prefix for the original data (e.g., 'original_' for the original data).
         results_dir (str): The directory path where the CSV file will be saved.
         filename (str): The name of the CSV file.
+        query_type_column (str): The column name representing the type of query.
 
     Returns:
         None: The function saves the absolute error results for specific queries to a CSV file.

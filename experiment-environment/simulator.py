@@ -130,9 +130,9 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     df_sdp = utilities.consolidate_results(query_results, 2, 0, sdp_type, query_type_column)
     
     # calculate the absolute difference between the original query and the query after applying DP
-    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename)
-    evaluate.get_absolute_error_queries(df_original, df_ldp, gdp_type, original_type, results_dir, ldp_query_results_filename)
-    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename)
+    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename, query_type_column)
+    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, results_dir, ldp_query_results_filename, query_type_column)
+    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename, query_type_column)
 
 def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
 
