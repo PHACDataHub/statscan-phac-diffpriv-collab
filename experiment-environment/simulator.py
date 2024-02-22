@@ -13,24 +13,11 @@ import shuffle_dp
 import global_dp
 import evaluate
 
-def main(config_file: str = typer.Argument(..., help="Location of the .yml config file (default name is run_config.yml).")) -> None:
-    """
-    <describe pipeline when done>
-    TODO: Define requirements.txt file
-    
-    Args:
-        config_file: Path of the .yml config file to be used (default name is run_config.yml)
-    """
-    # Test if the input filepath is correct
-    if len(config_file) > 0 and not os.path.isfile(config_file):
-        raise FileNotFoundError("Incorrect input yaml filepath.")
-    # Load the configuration file
-    cfg = utilities.get_config(config_file)
-    
+
+def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dict) -> None: 
+  
     # Load the experiment parameters from the config file with the appropriate keys
-    keys = config.Config()
     random_seed = cfg.get(keys.RANDOM_SEED)
-    epsilon = cfg.get(keys.EPSILON)
     delta = cfg.get(keys.DELTA)
     weight_multiplier = cfg.get(keys.WEIGHT_MULTIPLIER)
     query_types = cfg.get(keys.QUERY_TYPES)
@@ -116,12 +103,12 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
         query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
         
     # get absolute error between original and data after applying LDP/SDP
-    evaluate.get_absolute_error(df, ldp_data_full, results_dir, ldp_absolute_diff_filename, ldp_type, original_type)
-    evaluate.get_absolute_error(df, sdp_data_full, results_dir, ldp_absolute_diff_filename, sdp_type, original_type)
+    evaluate.get_absolute_error(df, ldp_data_full, results_dir, ldp_absolute_diff_filename, ldp_type, original_type, epsilon)
+    evaluate.get_absolute_error(df, sdp_data_full, results_dir, ldp_absolute_diff_filename, sdp_type, original_type, epsilon)
     
     # Run evaluation scripts
-    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, results_dir, ldp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename)
-    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, results_dir, sdp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename)
+    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, results_dir, ldp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
+    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, results_dir, sdp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
 
     # consolidate the results after querying and applying noise
     df_original = utilities.consolidate_results(query_results, 0, 0, original_type, query_type_column)
@@ -130,9 +117,9 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     df_sdp = utilities.consolidate_results(query_results, 2, 0, sdp_type, query_type_column)
     
     # calculate the absolute difference between the original query and the query after applying DP
-    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename, query_type_column)
-    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, results_dir, ldp_query_results_filename, query_type_column)
-    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename, query_type_column)
+    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, results_dir, ldp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename, query_type_column, epsilon)
 
 def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
 
@@ -158,7 +145,28 @@ def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_
                 sensitivity = gdp_module.calculate_sensitivity(df, query_type)
                 n_result = gdp_module.apply_global_dp(q_result, sensitivity)
                 noisy_result.update({query_type + '_GROUP_' + str(group_name):n_result})  
-    return query_result, noisy_result
+    return query_result, noisy_result    
+
+def main(config_file: str = typer.Argument(..., help="Location of the .yml config file (default name is run_config.yml).")) -> None:
+    """
+    <describe pipeline when done>
+    TODO: Define requirements.txt file
+    
+    Args:
+        config_file: Path of the .yml config file to be used (default name is run_config.yml)
+    """
+    # Test if the input filepath is correct
+    if len(config_file) > 0 and not os.path.isfile(config_file):
+        raise FileNotFoundError("Incorrect input yaml filepath.")
+    # Load the configuration file
+    cfg = utilities.get_config(config_file)
+    
+    # Load the experiment parameters from the config file with the appropriate keys
+    keys = config.Config()
+    epsilon = cfg.get(keys.EPSILON)
+    
+    for eps in epsilon:
+        run_pipeline(config_file, eps, cfg, keys)
     
 if __name__ == '__main__':
     # Execute the main program
