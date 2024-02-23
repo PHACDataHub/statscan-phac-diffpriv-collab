@@ -84,8 +84,14 @@ export const classNames = {
 }
 
 export const jsx = {
-  1 : <p>Testing page 1 jsx</p>,
-  2 : <p>Testing page 2 jsx</p>,
+  1 : <p>Differential privacy is a mathematical framework for quantifying the privacy of a set of data
+			so that we can guarantee the privacy of the individuals whose sensitive data we want to analyze.
+			Differential privacy aims to strike a balance between providing useful information from a dataset
+			and protecting the privacy of the individuals whose data it contains.</p>,
+  2 : <p>Differential privacy is a mathematical framework for quantifying the privacy of a set of data
+	so that we can guarantee the privacy of the individuals whose sensitive data we want to analyze.
+	Differential privacy aims to strike a balance between providing useful information from a dataset
+	and protecting the privacy of the individuals whose data it contains.</p>,
   3 : <p>Testing page 3 jsx</p>,
   4 : <p>Testing page 4 jsx</p>
 }
