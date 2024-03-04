@@ -13,6 +13,140 @@ import shuffle_dp
 import global_dp
 import evaluate
 
+
+def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dict) -> None: 
+  
+    # Load the experiment parameters from the config file with the appropriate keys
+    random_seed = cfg.get(keys.RANDOM_SEED)
+    delta = cfg.get(keys.DELTA)
+    weight_multiplier = cfg.get(keys.WEIGHT_MULTIPLIER)
+    query_types = cfg.get(keys.QUERY_TYPES)
+    columns_to_convert = cfg.get(keys.COLUMNS_TO_CONVERT)
+    column_conversion_type = cfg.get(keys.COLUMN_CONVERSION_TYPE)
+    gcp_bucket_name = cfg.get(keys.GCP_BUCKET_NAME)
+    gcp_data_folder_path = cfg.get(keys.GCP_DATA_FOLDER_PATH)
+    static_columns = cfg.get(keys.STATIC_COLUMNS)
+    stratify_first_k = cfg.get(keys.STRATIFY_FIRST_K)
+    results_dir = cfg.get(keys.RESULTS_DIR)
+    ldp_absolute_diff_filename = cfg.get(keys.LDP_ABSOLUTE_DIFF_FILENAME)
+    sdp_absolute_diff_filename = cfg.get(keys.SDP_ABSOLUTE_DIFF_FILENAME)
+    gdp_query_results_filename = cfg.get(keys.GDP_QUERY_RESULTS_FILENAME)
+    ldp_query_results_filename = cfg.get(keys.LDP_QUERY_RESULTS_FILENAME)
+    sdp_query_results_filename = cfg.get(keys.SDP_QUERY_RESULTS_FILENAME)
+    original_type = cfg.get(keys.ORIGINAL_TYPE)
+    gdp_type = cfg.get(keys.GDP_TYPE)
+    ldp_type = cfg.get(keys.LDP_TYPE)
+    sdp_type = cfg.get(keys.SDP_TYPE)
+    query_type_column = cfg.get(keys.QUERY_TYPE_COLUMN)
+    quality_report_filename = cfg.get(keys.QUALITY_REPORT_FILENAME)
+    column_shape_filename = cfg.get(keys.COLUMN_SHAPE_FILENAME)
+    column_pair_trends_filename = cfg.get(keys.COLUMN_PAIR_TRENDS_FILENAME)
+    
+    # Set the random seeds
+    utilities.set_random_seeds(random_seed)
+    
+    # Load the data partition to be used (the '/' value is needed at the end)
+    df = data_loader.load_data_sources(gcp_bucket_name, gcp_data_folder_path)
+    
+    # Adjust weights based on the selected scaling factor
+    df['WTS_M'] *= weight_multiplier
+    # (2) Seperate the static values from the other values, which are dynamic
+    df_static = df[static_columns].copy()
+    df_dynamic = df.drop(static_columns[:-1], axis=1)
+    
+    
+    # Initialize the LDP object
+    ldp_module = local_dp.LocalDifferentialPrivacy(epsilon)
+
+    # Convert the approprate columns to category
+    df_dynamic_ldp = utilities.convert_df_type(df_dynamic, columns_to_convert, column_conversion_type)
+    
+    # Calculate the sensitivity of the columns according to the query type
+    sensitivity_dict = ldp_module.calculate_sensitivity(df_dynamic_ldp, query_types[0])
+
+    
+    # Apply LDP to the specified dataframe, excluding static parameters and converting categorical column types
+    try:
+        df_ldp = ldp_module.apply_to_dataframe(df_dynamic_ldp, sensitivity_dict)
+    except Exception as e:
+        print(f"Error applying local differential privacy: {e}")
+        return
+    
+    print("\nNo DP RESULT")
+    print(df_dynamic.head())
+    print("\nLDP RESULT")
+    print(df_ldp.head())
+    
+    
+    # Prepare the SDP instance
+    sdp_module = shuffle_dp.ShuffleDifferentialPrivacy(epsilon, delta)
+    # Apply SDP on the data without converting the column types
+    try:
+        df_sdp = sdp_module.shuffle_model(df_dynamic)
+    except Exception as e:
+        print(f"Error applying Shuffle Differential Privacy: {e}")
+        return
+    print("\nSDP RESULT")
+    print(df_sdp.head(), "\n")
+    
+    # Prepare the GDP instance
+    gdp_module = global_dp.GlobalDifferentialPrivacy(epsilon)
+    
+    # Need to combine the datasets back together for shuffle and local DP
+    ldp_data_full = df_static.join(df_ldp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
+
+    sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
+
+    # Run query for GDP and apply noise, compute the queries in the case of SDP and LDP
+    query_results = []
+    for (dataset, apply_gdp) in [(df, True), (ldp_data_full, False), (sdp_data_full, False)]:
+        query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
+        
+    # get absolute error between original and data after applying LDP/SDP
+    evaluate.get_absolute_error(df, ldp_data_full, results_dir, ldp_absolute_diff_filename, ldp_type, original_type, epsilon)
+    evaluate.get_absolute_error(df, sdp_data_full, results_dir, ldp_absolute_diff_filename, sdp_type, original_type, epsilon)
+    
+    # Run evaluation scripts
+    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, results_dir, ldp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
+    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, results_dir, sdp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
+
+    # consolidate the results after querying and applying noise
+    df_original = utilities.consolidate_results(query_results, 0, 0, original_type, query_type_column)
+    df_gdp = utilities.consolidate_results(query_results, 0, 1, gdp_type, query_type_column)
+    df_ldp = utilities.consolidate_results(query_results, 1, 0, ldp_type, query_type_column)
+    df_sdp = utilities.consolidate_results(query_results, 2, 0, sdp_type, query_type_column)
+    
+    # calculate the absolute difference between the original query and the query after applying DP
+    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, results_dir, ldp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename, query_type_column, epsilon)
+
+def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
+
+
+    query_result = {}
+    noisy_result = {}
+    
+    # Configure the dataframe partitions to apply the queries to (one or more)
+    # df is expected to already have the column types appropriately converted to 'category'
+    df_groups = [df]
+    if grouping_variables[0] != "":
+        df_groups = df.groupby(grouping_variables[:-5])
+        print("\n Number of groups:", len(df_groups))
+        
+    # For each query type and group, execute the appropriate query
+    for query_type in query_types:
+        for group_name, df_group in df_groups:
+            print("Name of group:", group_name)
+            q_result = gdp_module.apply_query_to_df(df_group.drop(grouping_variables, axis=1), query_type)    
+            query_result.update({query_type + '_GROUP_' + str(group_name):q_result})
+            # If GDP is being applied, also derive the noisy outputs
+            if apply_noise:
+                sensitivity = gdp_module.calculate_sensitivity(df, query_type)
+                n_result = gdp_module.apply_global_dp(q_result, sensitivity)
+                noisy_result.update({query_type + '_GROUP_' + str(group_name):n_result})  
+    return query_result, noisy_result    
+
 def main(config_file: str = typer.Argument(..., help="Location of the .yml config file (default name is run_config.yml).")) -> None:
     """
     <describe pipeline when done>
@@ -29,121 +163,10 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     
     # Load the experiment parameters from the config file with the appropriate keys
     keys = config.Config()
-    random_seed = cfg.get(keys.RANDOM_SEED)
     epsilon = cfg.get(keys.EPSILON)
-    delta = cfg.get(keys.DELTA)
-    weight_multiplier = cfg.get(keys.WEIGHT_MULTIPLIER)
-    query_types = cfg.get(keys.QUERY_TYPES)
-    columns_to_convert = cfg.get(keys.COLUMNS_TO_CONVERT)
-    column_conversion_type = cfg.get(keys.COLUMN_CONVERSION_TYPE)
-    gcp_bucket_name = cfg.get(keys.GCP_BUCKET_NAME)
-    gcp_data_folder_path = cfg.get(keys.GCP_DATA_FOLDER_PATH)
-    static_columns = cfg.get(keys.STATIC_COLUMNS)
-    stratify_first_k = cfg.get(keys.STRATIFY_FIRST_K)
     
-    # TODO: Verify the contents of the config file
-    ...
-    
-    # Set the random seeds
-    utilities.set_random_seeds(random_seed)
-    
-    # Load the data partition to be used (the '/' value is needed at the end)
-    df = data_loader.load_data_sources(gcp_bucket_name, gcp_data_folder_path)
-    
-    
-    # Adjust weights based on the selected scaling factor
-    df['WTS_M'] *= weight_multiplier
-    # (2) Seperate the static values from the other values, which are dynamic
-    df_static = df[static_columns].copy()
-    df_dynamic = df.drop(static_columns[:-1], axis=1)
-    
-    # Initialize the LDP object
-    ldp_module = local_dp.LocalDifferentialPrivacy(epsilon)
-    # Calculate the appropriate privacy budget parameters
-    # TODO: Make dynamic for all query types
-
-    df_dynamic_ldp = utilities.convert_df_type(df_dynamic, columns_to_convert, column_conversion_type)
-    
-    sensitivity_dict = ldp_module.calculate_sensitivity(df_dynamic_ldp, query_types[0])
-
-    
-    # Apply LDP to the specified dataframe, excluding static parameters and converting categorical column types
-    try:
-        df_ldp = ldp_module.apply_to_dataframe(df_dynamic_ldp, sensitivity_dict)
-    except Exception as e:
-        print(f"Error applying local differential privacy: {e}")
-        return
-    
-
-    print("\nNo DP RESULT")
-    print(df_dynamic.head())
-    print("\nLDP RESULT")
-    print(df_ldp.head())
-    
-    
-    
-    # Prepare the SDP instance
-    sdp_module = shuffle_dp.ShuffleDifferentialPrivacy(epsilon, delta)
-    # Apply SDP on the data without converting the column types
-    try:
-        df_sdp = sdp_module.shuffle_model(df_dynamic)
-    except Exception as e:
-        print(f"Error applying Shuffle Differential Privacy: {e}")
-        return
-    print("\SDP RESULT")
-    print(df_sdp.head(), "\n")
-    
-    # Get Query results for dataset, LDP, and SDP datasets
-    gdp_module = global_dp.GlobalDifferentialPrivacy(epsilon)
-    
-    
-    # Need to combine the datasets back together for shuffle and local DP
-    ldp_data_full = pd.concat([df_static, df_ldp], axis=1, ignore_index=False, sort=True)
-    
-    sdp_data_full = pd.concat([df_static, df_sdp], axis=1, ignore_index=False, sort=True)
-    # Need to convert the shuffle DP columns to category
-    
-    query_results = []
-    for (dataset, apply_gdp) in [(df, True), (ldp_data_full, False), (sdp_data_full, False)]:
-        query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
-    
-    # Get GDP results
-    ...
-    
-    # Run evaluation scripts
-    ...
-    
-    # Do whatever outputs...
-    ...
-    
-    
-    return
-
-def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
-
-
-    query_result = {}
-    noisy_result = {}
-    
-    # Configure the dataframe partitions to apply the queries to (one or more)
-    # df is expected to already have the column types appropriately converted to 'category'
-    df_groups = [df]
-    if grouping_variables[0] != "":
-        df_groups = df.groupby(grouping_variables[:-5])
-        print(len(df_groups))
-        
-    # For each query type and group, execute the appropriate query
-    for query_type in query_types:
-        for group_name, df_group in df_groups:
-            print("NAME:", group_name)
-            q_result = gdp_module.apply_query_to_df(df_group.drop(grouping_variables, axis=1), query_type)    
-            query_result.update({query_type + '_GROUP_' + str(group_name):q_result})
-            # If GDP is being applied, also derive the noisy outputs
-            if apply_noise:
-                sensitivity = gdp_module.calculate_sensitivity(df, query_type)
-                n_result = gdp_module.apply_global_dp(q_result, sensitivity)
-                noisy_result.update({query_type + '_GROUP_' + str(group_name):n_result})  
-    return query_result, noisy_result
+    for eps in epsilon:
+        run_pipeline(config_file, eps, cfg, keys)
     
 if __name__ == '__main__':
     # Execute the main program

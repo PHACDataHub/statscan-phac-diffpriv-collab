@@ -4,6 +4,7 @@ import yaml
 import random
 import numpy as np
 import pandas as pd
+from typing import List
 
 from pathlib import Path
 
@@ -62,3 +63,60 @@ def convert_df_type(df: pd.DataFrame, columns_to_convert: list[str], type_name: 
     except Exception as e:
         print(e)
     return df_convert
+
+def consolidate_results(query_results: List[list], 
+                        index_0: int, 
+                        index_1: int, 
+                        result_type: str, 
+                        query_type_column: str) -> pd.DataFrame:
+    """
+    Consolidate the results of queries executed on a dataset.
+
+    Parameters:
+        query_results (List[list]): A list of query results.
+        index_0 (int): The index of the query result to consolidate.
+        index_1 (int): The index of the query result within the selected query result list.
+        result_type (str): The type of the result (e.g., 'real', 'synthetic').
+        query_type_column (str): The column name representing the type of query.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the consolidated query results.
+    """
+    data = query_results[index_0][index_1].copy()
+    df = pd.concat([pd.json_normalize(data[key]).\
+                    assign(**{query_type_column: result_type + key}) for key in data], \
+                    ignore_index=True)
+    return df
+
+def arrange_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Arrange the columns of a DataFrame based on their substrings.
+
+    Parameters:
+        df (pd.DataFrame): The DataFrame whose columns need to be arranged.
+
+    Returns:
+        pd.DataFrame: A new DataFrame with columns arranged based on their substrings.
+    """
+    columns = df.columns
+    
+    # Create a dictionary to group columns by their substrings
+    grouped_columns = {}
+    for col in columns:
+        substr = col.split('_')[-1]  # Extract the substring after the last underscore
+        if substr not in grouped_columns:
+            grouped_columns[substr] = []
+        grouped_columns[substr].append(col)
+    
+    # Sort the columns within each group
+    for substr in grouped_columns:
+        grouped_columns[substr].sort()
+    
+    # Concatenate the lists in the desired order
+    desired_columns = []
+    for substr in grouped_columns:
+        desired_columns.extend(grouped_columns[substr])
+    
+    # Create a new DataFrame with columns arranged in the desired order
+    arranged_df = df[desired_columns]
+    return arranged_df
