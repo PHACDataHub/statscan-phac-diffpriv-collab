@@ -63,7 +63,7 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     
     # Calculate the sensitivity of the columns according to the query type
     sensitivity_dict = ldp_module.calculate_sensitivity(df_dynamic_ldp, query_types[0])
-
+    
     
     # Apply LDP to the specified dataframe, excluding static parameters and converting categorical column types
     try:
@@ -74,18 +74,22 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     
     print("\nNo DP RESULT")
     print(df_dynamic.head())
+    
     print("\nLDP RESULT")
     print(df_ldp.head())
-    
+
     
     # Prepare the SDP instance
     sdp_module = shuffle_dp.ShuffleDifferentialPrivacy(epsilon, delta)
     # Apply SDP on the data without converting the column types
     try:
         df_sdp = sdp_module.shuffle_model(df_dynamic)
+        df_sdp = df_sdp.sort_values(by=['ID'])
     except Exception as e:
         print(f"Error applying Shuffle Differential Privacy: {e}")
         return
+    
+    
     print("\nSDP RESULT")
     print(df_sdp.head(), "\n")
     
@@ -96,19 +100,27 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     ldp_data_full = df_static.join(df_ldp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
 
     sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
-
+    
+    results_dir = f"{results_dir}_{datetime.today().strftime('%Y-%m-%d')}"
+    if not os.path.exists(results_dir):
+        os.mkdir(results_dir)
+        
+    epsilon_dir = os.path.join(results_dir, f'eps_{epsilon}')
+    if not os.path.exists(epsilon_dir):
+        os.mkdir(epsilon_dir)
+    
     # Run query for GDP and apply noise, compute the queries in the case of SDP and LDP
     query_results = []
     for (dataset, apply_gdp) in [(df, True), (ldp_data_full, False), (sdp_data_full, False)]:
         query_results.append(run_queries(utilities.convert_df_type(dataset, columns_to_convert, column_conversion_type), static_columns, stratify_first_k, gdp_module, query_types, apply_gdp))
         
     # get absolute error between original and data after applying LDP/SDP
-    evaluate.get_absolute_error(df, ldp_data_full, results_dir, ldp_absolute_diff_filename, ldp_type, original_type, epsilon)
-    evaluate.get_absolute_error(df, sdp_data_full, results_dir, ldp_absolute_diff_filename, sdp_type, original_type, epsilon)
+    evaluate.get_absolute_error(df, ldp_data_full, epsilon_dir, ldp_absolute_diff_filename, ldp_type, original_type, epsilon)
+    evaluate.get_absolute_error(df, sdp_data_full, epsilon_dir, sdp_absolute_diff_filename, sdp_type, original_type, epsilon)
     
     # Run evaluation scripts
-    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, results_dir, ldp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
-    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, results_dir, sdp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
+    ldp_shape, ldp_pairs = evaluate.evaluate_synthetic_dataset(df, ldp_data_full, epsilon_dir, ldp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
+    sdp_shape, sdp_pairs = evaluate.evaluate_synthetic_dataset(df, sdp_data_full, epsilon_dir, sdp_type, quality_report_filename, column_shape_filename, column_pair_trends_filename, epsilon)
 
     # consolidate the results after querying and applying noise
     df_original = utilities.consolidate_results(query_results, 0, 0, original_type, query_type_column)
@@ -117,10 +129,10 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     df_sdp = utilities.consolidate_results(query_results, 2, 0, sdp_type, query_type_column)
     
     # calculate the absolute difference between the original query and the query after applying DP
-    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, results_dir, gdp_query_results_filename, query_type_column, epsilon)
-    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, results_dir, ldp_query_results_filename, query_type_column, epsilon)
-    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, results_dir, sdp_query_results_filename, query_type_column, epsilon)
-
+    evaluate.get_absolute_error_queries(df_original, df_gdp, gdp_type, original_type, epsilon_dir, gdp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_ldp, ldp_type, original_type, epsilon_dir, ldp_query_results_filename, query_type_column, epsilon)
+    evaluate.get_absolute_error_queries(df_original, df_sdp, sdp_type, original_type, epsilon_dir, sdp_query_results_filename, query_type_column, epsilon)
+    
 def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_k: int, gdp_module: global_dp.GlobalDifferentialPrivacy, query_types: list[str], apply_noise: bool = False):
 
 
@@ -131,13 +143,17 @@ def run_queries(df: pd.DataFrame, grouping_variables: list[str], stratify_first_
     # df is expected to already have the column types appropriately converted to 'category'
     df_groups = [df]
     if grouping_variables[0] != "":
-        df_groups = df.groupby(grouping_variables[:-5])
-        print("\n Number of groups:", len(df_groups))
+        print("\nStratification variables:", grouping_variables[:stratify_first_k[-1]+1])
         
+        df_groups = df.groupby(grouping_variables[:stratify_first_k[-1]+1])
+        print("\nNumber of groups:", len(df_groups))
+        
+    print(f"\n{'_______'*15}")
     # For each query type and group, execute the appropriate query
     for query_type in query_types:
+        print(f"\nExecuting query: {query_type}")
         for group_name, df_group in df_groups:
-            print("Name of group:", group_name)
+            print("\nName of group:", group_name)
             q_result = gdp_module.apply_query_to_df(df_group.drop(grouping_variables, axis=1), query_type)    
             query_result.update({query_type + '_GROUP_' + str(group_name):q_result})
             # If GDP is being applied, also derive the noisy outputs
@@ -158,6 +174,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     # Test if the input filepath is correct
     if len(config_file) > 0 and not os.path.isfile(config_file):
         raise FileNotFoundError("Incorrect input yaml filepath.")
+        
     # Load the configuration file
     cfg = utilities.get_config(config_file)
     
@@ -166,6 +183,8 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     epsilon = cfg.get(keys.EPSILON)
     
     for eps in epsilon:
+        print(f"\n{'******'*15}")
+        print(f"Executing pipeline for epsilon={eps}\n")
         run_pipeline(config_file, eps, cfg, keys)
     
 if __name__ == '__main__':

@@ -76,6 +76,11 @@ def consolidate_results(query_results: List[list],
         query_results (List[list]): A list of query results.
         index_0 (int): The index of the query result to consolidate.
         index_1 (int): The index of the query result within the selected query result list.
+        Note:
+            index_0 = 0, index_1 = 0 indicates the result of running the query on the original data
+            index_0 = 0, index_1 = 1 indicates the result of applying the noise to the query of the original data
+            index_0 = 1, index_1 = 0 indicates the result of running the query on the LDP data
+            index_0 = 2, index_1 = 0 indicates the result of running the query on the SDP data
         result_type (str): The type of the result (e.g., 'real', 'synthetic').
         query_type_column (str): The column name representing the type of query.
 

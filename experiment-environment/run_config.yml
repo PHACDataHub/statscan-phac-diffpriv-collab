@@ -29,12 +29,6 @@ weight_multiplier: 1.0
 
 # List of query types to use:
 # Options include 'sum', 'mean', and 'frequency'.
-#query_types: [
-#    'sum',
-#    'frequency',
-#    'mean'
-#]
-
 query_types: [
     'sum',
     'mean'
@@ -53,9 +47,6 @@ columns_to_convert: [
     'SMK_030',
 ]
 
-#columns_to_convert: [
-#    'SMK_030',
-#]
 
 # List of the values to not be adjusted by any DP process.
 # Note: Order the first k entries to be the values desired
@@ -64,15 +55,11 @@ columns_to_convert: [
 static_columns: [
     'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'ID'
 ]
-#static_columns: [
-#    'GEO_PRV', 'DHH_SEX', 'GEODGHR4', 'DHHGMS', 'DHHGAGE', 'GEN_005', 'GEN_015', 'GEN_020', #'GEN_025', 'SMK_005', 'SMK_015', 'SMK_020', 'HWTDGHTM', 'ID'
-#]
 
-
-# For the list above, state which first k indices should be used
+# For the list below, state which first k indices should be used
 # for stratification. Example: If the above list has 5 elements
 # and you want the first 2 for stratification, input 2.
-stratify_first_k: 1
+stratify_first_k: [0, 1]
 
 # String to define what to convert the above list of columns to.
 # This will not change unless custom tests are implemented.
