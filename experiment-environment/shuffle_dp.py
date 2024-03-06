@@ -127,6 +127,9 @@ class ShuffleDifferentialPrivacy:
             k = upper_bounds[column]
 
             # Apply local randomizer to each element in the current column
+            if column.upper() in ['ID', 'WTS_M']: # to not apply noise to ID or weights
+                continue
+                
             df[column] = df[column].apply(lambda x: self.local_randomizer(x, gamma, k))
 
             # Update tqdm progress bar
