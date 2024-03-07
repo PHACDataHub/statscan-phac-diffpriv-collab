@@ -130,7 +130,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     filename = 'combined_results.csv'
     query_type_column = 'query_type'
     
-    original_data = query_results[1][0].copy()
+    original_data = query_results[0][0].copy()
     df_original = pd.DataFrame()
     for key in original_data:
         row = original_data[key].copy()
@@ -138,7 +138,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
         df_original = pd.concat([df_original,pd.json_normalize(row)])
     df_original = df_original.reset_index(drop=True)
 
-    gdp_result = query_results[1][0].copy()
+    gdp_result = query_results[0][1].copy()
     df_gdp = pd.DataFrame()
     for key in gdp_result:
         row = gdp_result[key].copy()
