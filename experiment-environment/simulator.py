@@ -5,6 +5,7 @@ from pathlib import Path
 import typer
 import pandas as pd
 
+import shutil
 import config
 import utilities
 import data_loader
@@ -101,10 +102,13 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
 
     sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
     
-    results_dir = f"{results_dir}_{datetime.today().strftime('%Y-%m-%d')}"
+    
+    results_dir = f"{results_dir}_{datetime.today()}"
     if not os.path.exists(results_dir):
         os.mkdir(results_dir)
-        
+    
+    shutil.copyfile(config_file, os.path.join(results_dir, config_file))
+    
     epsilon_dir = os.path.join(results_dir, f'eps_{epsilon}')
     if not os.path.exists(epsilon_dir):
         os.mkdir(epsilon_dir)
@@ -171,6 +175,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     Args:
         config_file: Path of the .yml config file to be used (default name is run_config.yml)
     """
+    
     # Test if the input filepath is correct
     if len(config_file) > 0 and not os.path.isfile(config_file):
         raise FileNotFoundError("Incorrect input yaml filepath.")
