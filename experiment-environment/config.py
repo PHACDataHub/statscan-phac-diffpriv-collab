@@ -27,3 +27,18 @@ class Config:
     QUALITY_REPORT_FILENAME: str  = 'quality_report_filename'
     COLUMN_SHAPE_FILENAME: str  = 'column_shape_filename'
     COLUMN_PAIR_TRENDS_FILENAME: str  = 'column_pair_trends_filename'
+    
+class AggregationConfig:
+    ROOT_DIRS: str = 'root_dirs'
+    EPSILON: str = 'epsilon'
+    GDP_QUERY_RESULTS_FILENAME: str  = 'gdp_query_results_filename'
+    LDP_QUERY_RESULTS_FILENAME: str  = 'ldp_query_results_filename'
+    SDP_QUERY_RESULTS_FILENAME: str  = 'sdp_query_results_filename'
+    AGG_RESULTS_DIR: str  = 'agg_results_dir'
+    GDP_AVERAGE_DF_FILENAME: str = 'gdp_average_df_filename'
+    LDP_AVERAGE_DF_FILENAME: str = 'ldp_average_df_filename'
+    SDP_AVERAGE_DF_FILENAME: str = 'sdp_average_df_filename'
+    GDP_TYPE: str  = 'gdp_type'
+    LDP_TYPE: str  = 'ldp_type'
+    SDP_TYPE: str  = 'sdp_type'
+   

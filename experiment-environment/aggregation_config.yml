@@ -1,0 +1,32 @@
+# Directories to aggregate
+root_dirs: [
+    'results_2024-03-12 00:38:36.805890',
+    'results_2024-03-12 00:47:20.263178',
+    'results_2024-03-12 00:53:46.433117',
+    'results_2024-03-12 01:01:55.970918',
+    'results_2024-03-12 01:07:00.098049'
+]
+
+# Epsilon for what results needs to be aggregated
+epsilon: '0.6'
+
+# Filename for storing the absolute difference between the original query results vs
+# query results after applying DP
+gdp_query_results_filename : 'gdp_query_results_abs_diff.csv'
+ldp_query_results_filename : 'ldp_query_results_abs_diff.csv'
+sdp_query_results_filename : 'sdp_query_results_abs_diff.csv'
+
+# The folder where the aggregation results will be stored
+agg_results_dir: 'aggregated_results'
+
+# filename for storing the average absolute difference between the original query results vs
+# query results after applying DP
+gdp_average_df_filename: 'gdp_average_query_results.csv'
+ldp_average_df_filename: 'ldp_average_query_results.csv'
+sdp_average_df_filename: 'sdp_average_query_results.csv'
+
+# Type of differential privacy for identifying the columns
+gdp_type : 'gdp'
+ldp_type : 'ldp'
+sdp_type : 'sdp'
+

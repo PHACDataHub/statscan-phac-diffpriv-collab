@@ -114,7 +114,7 @@ def evaluate_synthetic_dataset(df: pd.DataFrame,
     quality_report.save(os.path.join(results_dir, quality_report_filename))
     
     # save the figures
-    column_shape_filename = dp_type + column_shape_filename.split(".")[0] + f"eps_{epsilon}." + column_shape_filename.split(".")[1]
+    column_shape_filename = dp_type + column_shape_filename.split(".")[0] + f"_eps_{epsilon}." + column_shape_filename.split(".")[1]
     
     column_pair_trends_filename = dp_type + column_pair_trends_filename.split(".")[0] + f"_eps_{epsilon}." + column_pair_trends_filename.split(".")[1]
                         
