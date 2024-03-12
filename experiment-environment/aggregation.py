@@ -137,14 +137,14 @@ def aggregation_pipeline(cfg: config.Config, keys: dict) -> None:
     sdp_query_dfs = get_query_dfs(root_dirs, epsilon, sdp_query_results_filename.split('.'))
     
     # Arrange columns of dataframes for aggregation.
-    gdp_arrange_columns = arrange_columns(gdp_query_dfs, 'gdp')
-    ldp_arrange_columns = arrange_columns(ldp_query_dfs, 'ldp')
-    sdp_arrange_columns = arrange_columns(sdp_query_dfs, 'sdp')
+    gdp_arrange_columns = arrange_columns(gdp_query_dfs, gdp_type)
+    ldp_arrange_columns = arrange_columns(ldp_query_dfs, ldp_type)
+    sdp_arrange_columns = arrange_columns(sdp_query_dfs, sdp_type)
     
     # aggregation pipeline to calculate averages for different privacy mechanisms
-    gdp_average_df = calculate_average(gdp_query_dfs, gdp_arrange_columns, 'gdp')
-    ldp_average_df = calculate_average(ldp_query_dfs, ldp_arrange_columns, 'ldp')
-    sdp_average_df = calculate_average(sdp_query_dfs, sdp_arrange_columns, 'sdp')
+    gdp_average_df = calculate_average(gdp_query_dfs, gdp_arrange_columns, gdp_type)
+    ldp_average_df = calculate_average(ldp_query_dfs, ldp_arrange_columns, ldp_type)
+    sdp_average_df = calculate_average(sdp_query_dfs, sdp_arrange_columns, sdp_type)
     
     agg_results_dir = f"{agg_results_dir}_{datetime.today()}"
     if not os.path.exists(agg_results_dir):
