@@ -65,7 +65,7 @@ function Qbox() {
                 <div className='overlay-cross' onClick={closeBox}>
                     <section style={{fontWeight:'bold',fontSize:'large',position:'absolute',top:"50%",left:"50%",transform:"translate(-50%,-50%)"}}>X</section>
                 </div>
-                <div style={{position:'absolute',width:"50%",height:"50%",backgroundColor:"white",
+                <div style={{position:'absolute',width:"70%",height:"60%",backgroundColor:"white",
                             top:"50%",left:"50%",transform:"translate(-50%,-50%)",overflowY:'scroll',
                             padding:'20px',border:'solid',borderRadius:'10px'}}>
                                 <h1>{pageNo}</h1>

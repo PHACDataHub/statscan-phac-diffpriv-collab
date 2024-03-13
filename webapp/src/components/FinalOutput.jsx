@@ -4,9 +4,10 @@ import { Container, Row, Col} from 'react-bootstrap';
 import { contexts } from '../contexts/AppContext';
 import Button from 'react-bootstrap/Button';
 import { classNames } from '../initialStates';
+import { pageNumbers } from '../initialStates';
 
 function FinalOutput() {
-  let { finalOutput } = useContext(contexts.App.context);
+  let { finalOutput,pageLoaded,setPageLoaded } = useContext(contexts.App.context);
 
   let finalOutputParsed = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
                                            .replaceAll("{","{\n\t")
@@ -16,15 +17,19 @@ function FinalOutput() {
   const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
   useEffect(()=>{
-    window.scrollTo({top:height*3,behavior:"smooth"});
+    if(pageLoaded)
+      window.scrollTo({top:height*(pageNumbers["finalResults"]-1),behavior:"smooth"});
+    else{
+      setPageLoaded(true);
+    }
   },[]);
 
   const backToForm = () => {
-    window.scrollTo({top:height,behavior:"smooth"});
+    window.scrollTo({top:height*(pageNumbers["surveyForm"]-1),behavior:"smooth"});
   }
 
   const tuneNoise = () => {
-    window.scrollTo({top:height*2,behaviour:"smooth"})
+    window.scrollTo({top:height*(pageNumbers["intermediate"]-1),behaviour:"smooth"})
   }
 
   const download = (type) => {

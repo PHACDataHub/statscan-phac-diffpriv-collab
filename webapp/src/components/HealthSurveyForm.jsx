@@ -80,7 +80,9 @@ const HealthSurveyForm = () => {
   }, [submitted]);
 
   const submitForm = (e) => {
-    e.preventDefault();
+    if(e){
+      e.preventDefault();
+    }
     setSubmitted((prevSubmit) => prevSubmit + 1);
   }
 
@@ -122,13 +124,13 @@ const HealthSurveyForm = () => {
           formGenerator(formData)
         }
         <ButtonGroup aria-label="Basic example">
-          <Button variant="outline-success" size="md" active onClick={submitForm}>
+          <Button id="submitFormData" variant="outline-success" size="md" active onClick={submitForm}>
             Submit
           </Button>
-          <Button type="button" variant="outline-warning" size="md" active onClick={handleFormReset}>
+          <Button id="resetFormData" type="button" variant="outline-warning" size="md" active onClick={handleFormReset}>
             Reset
           </Button>
-          <Button type="button" variant="outline-info" size="md" active onClick={randomizeFormData}>
+          <Button id="randomizeFormData" type="button" variant="outline-info" size="md" active onClick={randomizeFormData}>
             Randomize
           </Button>
         </ButtonGroup>

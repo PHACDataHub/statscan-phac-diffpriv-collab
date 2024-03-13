@@ -4,7 +4,7 @@ import { Container, Row, Col, Form } from 'react-bootstrap';
 import { generateNoisyObject } from './utility/generateNoisyObject';
 import { contexts } from './contexts/AppContext';
 import { EPSILON,SENSITIVITY } from './utility/constants';
-import { initFormState,classNames } from './initialStates';
+import { initFormState,classNames,pageNumbers } from './initialStates';
 
 import HealthSurveyForm from './components/HealthSurveyForm';
 import FinalOutput from './components/FinalOutput'
@@ -12,6 +12,8 @@ import './App.css';
 import IntermediateResults from './components/IntermediateResults';
 import Qbox from './components/Qbox';
 import Sidebar from './components/Sidebar';
+import Guide from './components/Guide';
+import WhatIs from './components/WhatIs';
 
 const App = () => {
   const formRef = useRef(null);
@@ -20,6 +22,8 @@ const App = () => {
   const previousWidth = useRef('25%');
   const submittedDataRef = useRef(null);
   const finalOutputRef = useRef(null);
+  const guideRef = useRef(null);
+  const whatIsRef = useRef(null);
   const [pageNo,setPageNo] = useState(0);
   const [formData, setFormData] = useState(initFormState);
   const [submittedData, setSubmittedData] = useState({});
@@ -30,8 +34,9 @@ const App = () => {
   const [submitted,setSubmitted] = useState(0);
   const [filledAndValid,setFilledAndValid] = useState(false);
   const [finalOutput,setFinalOutput] = useState({});
+  const [pageLoaded,setPageLoaded] = useState(false);
 
-  const max_min_step = { [EPSILON] : [0,1,0.05], [SENSITIVITY] : [0,1,0.05] };
+  const max_min_step = { [EPSILON] : [0.05,1,0.05], [SENSITIVITY] : [0,1,0.05] };
 
   const handleFormSubmit = () => {
     setSubmittedData(formData);
@@ -39,7 +44,9 @@ const App = () => {
     setNoisyData(noisyData);
     document.getElementsByClassName('submittedData')[0].classList.replace('hide','show');
     const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight); 
-    window.scrollTo({top:height*2,behavior: "smooth"});
+    if(pageLoaded){
+      window.scrollTo({top:height*(pageNumbers['intermediate']-1),behavior: "smooth"});
+    }
   };
 
   const handleFormReset = (e) => {
@@ -53,6 +60,7 @@ const App = () => {
     setSensitivity(1.0);
     setFilledAndValid(false);
     setFinalOutput({});
+    setPageLoaded(true);
     for(let x = document.getElementsByClassName("show").length - 1; x >= 1; x--){
       document.getElementsByClassName("show")[x].classList.replace("show","hide");
     }
@@ -93,7 +101,7 @@ const App = () => {
           const endY = -50;
           const Y = startY + ((endY - startY) * val);
 
-          const el = entry.target.parentElement.children[1];   
+          const el = entry.target.parentElement.children[1];  
           el.style.opacity = opacity;
           el.style.transform = `translate(${X}%,-50%)`;
           //el.style.transform = `translate(-50%,${Y}%)`;
@@ -110,28 +118,38 @@ const App = () => {
         let showQBox = 'block';
         let pageNoCopy = qboxRef.current.pageNo;
         if(entry.target.classList.contains('page1') && entry.isIntersecting){
-          toWidth = '25%' ;
+          toWidth = '16.67%' ;
           showQBox = 'none';
           pageNoCopy = 1;
         }
-        if(entry.target.classList.contains('form') && entry.isIntersecting){
-          toWidth = '50%';
+        if(entry.target.classList.contains('page2') && entry.isIntersecting){
+          toWidth = '33.33%';
           showQBox = 'block'; 
           pageNoCopy = 2;
         }
-        if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
-          toWidth = '75%';
+        if(entry.target.classList.contains('page3') && entry.isIntersecting){
+          toWidth = '50.01%';
           showQBox = 'block'; 
           pageNoCopy = 3;
+        }
+        if(entry.target.classList.contains('form') && entry.isIntersecting){
+          toWidth = '66.67%';
+          showQBox = 'block'; 
+          pageNoCopy = 4;
+        }
+        if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
+          toWidth = '80%';
+          showQBox = 'block'; 
+          pageNoCopy = 5;
         }
         if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
           toWidth = '100%';
           showQBox = 'block'; 
-          pageNoCopy = 4;
+          pageNoCopy = 6;
         }
         document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
         previousWidth.current = toWidth;          
-        qboxRef.current.style.display = (pageNoCopy >= 2) ? 'block' : 'none';
+        qboxRef.current.style.display = (pageNoCopy >= pageNumbers['surveyForm']) ? 'block' : 'none';
         qboxRef.current.pageNo = pageNoCopy;
         setPageNo(pageNoCopy);
         el.style.width = toWidth;
@@ -141,9 +159,16 @@ const App = () => {
   const observer = new IntersectionObserver(callback,options);
   const pageObserver = new IntersectionObserver(callback2,options2);
 
+  useEffect(()=>{
+      document.getElementById("randomizeFormData").click();
+      document.getElementById("submitFormData").click();
+  },[]);
+
   useEffect(() => {
     if(pages.current){
       pageObserver.observe(document.getElementsByClassName('page1')[0]);
+      pageObserver.observe(document.getElementsByClassName('page2')[0]);
+      pageObserver.observe(document.getElementsByClassName('page3')[0]);
       pageObserver.observe(document.getElementsByClassName('form')[0]);
       pageObserver.observe(document.getElementsByClassName('submittedData')[0]);
       pageObserver.observe(document.getElementsByClassName('finalOutput')[0]);
@@ -161,6 +186,14 @@ const App = () => {
       observer.observe(finalOutputRef.current);
     }
 
+    if(guideRef.current){
+      observer.observe(guideRef.current);
+    }
+
+    if(whatIsRef.current){
+      observer.observe(whatIsRef.current);
+    }
+
     if(filledAndValid && submitted > 0){
       setSubmittedData(formData);
       const noisyData = generateNoisyObject(formData, sensitivity, epsilon, noiseType);
@@ -173,7 +206,7 @@ const App = () => {
       pageObserver.disconnect();
     }
   }, [pages.current, formRef.current, submittedDataRef.current, finalOutputRef.current,
-      formData, sensitivity, epsilon, noiseType]);
+      guideRef.current, whatIsRef.current, formData, sensitivity, epsilon, noiseType]);
 
   const contextValues = {formData,setFormData,
                          handleFormSubmit,
@@ -187,7 +220,8 @@ const App = () => {
                          max_min_step,
                          setFilledAndValid,
                          finalOutput,setFinalOutput,
-                         qboxRef,pageNo,setPageNo};
+                         qboxRef,pageNo,setPageNo,
+                         pageLoaded,setPageLoaded};
 
   return (
     <contexts.App.provider value={contextValues}>
@@ -195,9 +229,24 @@ const App = () => {
         <Qbox />
         <div className='progressbar'></div>
         <Sidebar />
-        <div className='page1' style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
+        <div className='page1' 
+             style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
+        <div className='page2' 
+             style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+              <div ref={whatIsRef} className='offsetBox'></div>
+              <div className='box'>
+                <WhatIs/>
+              </div>
+             </div>
+        <div className='page3' 
+             style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+              <div ref={guideRef} className='offsetBox'></div>
+              <div className='box'>
+                <Guide/>
+              </div>
+        </div>
         <div className='form show getHeight'  
-          style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+             style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={formRef} className='offsetBox'></div>
           <div className='box'>
              <Container fluid className="custom-container">
@@ -212,7 +261,7 @@ const App = () => {
           </div>
         </div>
         <div className='submittedData hide getHeight'  
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
+             style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
           <div ref={submittedDataRef} className='offsetBox'></div>
           <div className='box'>
           {Object.entries(submittedData).length != 0 &&
@@ -220,7 +269,7 @@ const App = () => {
           </div>
         </div>
         <div className='finalOutput hide getHeight'
-         style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+             style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
           <div ref={finalOutputRef} className='offsetBox'></div>
           <div className='box'>
               {Object.entries(finalOutput).length != 0 &&
