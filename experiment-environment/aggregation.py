@@ -2,7 +2,7 @@ import os
 import utilities
 import config
 import pandas as pd
-import config 
+import shutil
 import typer
 from typing import List
 from datetime import datetime
@@ -107,7 +107,7 @@ def calculate_average(query_dfs: List[str], arranged_columns: List[str], dp_type
     
     return average_df
 
-def aggregation_pipeline(cfg: config.Config, keys: dict) -> None:
+def aggregation_pipeline(cfg: config.Config, keys: dict, config_file: str) -> None:
     """
     Perform an aggregation pipeline to calculate averages for different privacy mechanisms and save the results.
 
@@ -146,9 +146,12 @@ def aggregation_pipeline(cfg: config.Config, keys: dict) -> None:
     ldp_average_df = calculate_average(ldp_query_dfs, ldp_arrange_columns, ldp_type)
     sdp_average_df = calculate_average(sdp_query_dfs, sdp_arrange_columns, sdp_type)
     
-    agg_results_dir = f"{agg_results_dir}_{datetime.today()}"
+    agg_results_dir = f"{agg_results_dir}_{datetime.today()}_{epsilon}"
     if not os.path.exists(agg_results_dir):
         os.mkdir(agg_results_dir)
+        
+    # Copy the config into the output folder
+    shutil.copyfile(config_file, os.path.join(agg_results_dir, config_file))
     
     # save the results of aggregation
     gdp_average_df_path = os.path.join(agg_results_dir, gdp_average_df_filename)
@@ -177,7 +180,9 @@ def main(agg_config_file: str = typer.Argument(..., help="Location of the .yml a
     keys = config.AggregationConfig()
     
     # Run the aggregation pipeline
-    aggregation_pipeline(cfg, keys)
+    print("Starting aggregation")
+    aggregation_pipeline(cfg, keys, agg_config_file)
+    print("Aggregation complete")
     
 if __name__ == '__main__':
     # Execute the main program

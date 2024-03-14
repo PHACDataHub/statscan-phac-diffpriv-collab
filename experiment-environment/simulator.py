@@ -15,7 +15,7 @@ import global_dp
 import evaluate
 
 
-def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dict) -> None: 
+def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dict, k: int, epsilon_dir: str) -> None: 
   
     # Load the experiment parameters from the config file with the appropriate keys
     random_seed = cfg.get(keys.RANDOM_SEED)
@@ -28,7 +28,9 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     gcp_data_folder_path = cfg.get(keys.GCP_DATA_FOLDER_PATH)
     static_columns = cfg.get(keys.STATIC_COLUMNS)
     stratify_first_k = cfg.get(keys.STRATIFY_FIRST_K)
-    results_dir = cfg.get(keys.RESULTS_DIR)
+    
+    #results_dir = cfg.get(keys.RESULTS_DIR)
+    
     ldp_absolute_diff_filename = cfg.get(keys.LDP_ABSOLUTE_DIFF_FILENAME)
     sdp_absolute_diff_filename = cfg.get(keys.SDP_ABSOLUTE_DIFF_FILENAME)
     gdp_query_results_filename = cfg.get(keys.GDP_QUERY_RESULTS_FILENAME)
@@ -101,17 +103,6 @@ def run_pipeline(config_file: str, epsilon: float, cfg: config.Config, keys: dic
     ldp_data_full = df_static.join(df_ldp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
 
     sdp_data_full = df_static.join(df_sdp.set_index('ID'), on='ID', how='inner', sort=True, validate=None)
-    
-    
-    results_dir = f"{results_dir}_{datetime.today()}"
-    if not os.path.exists(results_dir):
-        os.mkdir(results_dir)
-    
-    shutil.copyfile(config_file, os.path.join(results_dir, config_file))
-    
-    epsilon_dir = os.path.join(results_dir, f'eps_{epsilon}')
-    if not os.path.exists(epsilon_dir):
-        os.mkdir(epsilon_dir)
     
     # Run query for GDP and apply noise, compute the queries in the case of SDP and LDP
     query_results = []
@@ -187,10 +178,27 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
     keys = config.Config()
     epsilon = cfg.get(keys.EPSILON)
     
-    for eps in epsilon:
-        print(f"\n{'******'*15}")
-        print(f"Executing pipeline for epsilon={eps}\n")
-        run_pipeline(config_file, eps, cfg, keys)
+    # Create the directory for the run
+    results_dir = f"results_{datetime.today()}"
+    if not os.path.exists(results_dir):
+        os.mkdir(results_dir)
+        shutil.copyfile(config_file, os.path.join(results_dir, config_file))
+    
+    k = 5
+    # Run k times
+    for i in range(k):
+        # Create the directory for which iteration is being run
+        run_dir = results_dir + "/Run_" + str(i + 1) 
+        if not os.path.exists(run_dir):
+            os.mkdir(run_dir)
+        for eps in epsilon:
+            eps_dir = run_dir + "/Eps_" + str(eps) 
+            # Create a directory for each epsilon
+            if not os.path.exists(eps_dir):
+                os.mkdir(eps_dir)
+            print(f"\n{'******'*15}")
+            print(f"Executing pipeline for epsilon={eps}\n")
+            run_pipeline(config_file, eps, cfg, keys, k, eps_dir)
     
 if __name__ == '__main__':
     # Execute the main program
