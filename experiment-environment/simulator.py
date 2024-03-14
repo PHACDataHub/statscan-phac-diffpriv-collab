@@ -192,7 +192,7 @@ def main(config_file: str = typer.Argument(..., help="Location of the .yml confi
         if not os.path.exists(run_dir):
             os.mkdir(run_dir)
         for eps in epsilon:
-            eps_dir = run_dir + "/Eps_" + str(eps) 
+            eps_dir = run_dir + "/eps_" + str(eps) 
             # Create a directory for each epsilon
             if not os.path.exists(eps_dir):
                 os.mkdir(eps_dir)
