@@ -95,3 +95,12 @@ export const jsx = {
   3 : <p>Testing page 3 jsx</p>,
   4 : <p>Testing page 4 jsx</p>
 }
+
+export const pageNumbers = {
+  'page1' : 1,
+  'page2' : 2,
+  'page3' : 3,
+  'surveyForm' : 4,
+  'intermediate' : 5,
+  'finalResults' : 6,
+}

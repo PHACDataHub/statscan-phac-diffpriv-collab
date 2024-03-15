@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Form from 'react-bootstrap/Form';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+// import Form from 'react-bootstrap/Form';
+// import Col from 'react-bootstrap/Col';
+// import Row from 'react-bootstrap/Row';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 import { contexts } from '../contexts/AppContext';
 
 const HealthSurveyForm = () => {
@@ -80,7 +81,9 @@ const HealthSurveyForm = () => {
   }, [submitted]);
 
   const submitForm = (e) => {
-    e.preventDefault();
+    if(e){
+      e.preventDefault();
+    }
     setSubmitted((prevSubmit) => prevSubmit + 1);
   }
 
@@ -114,26 +117,55 @@ const HealthSurveyForm = () => {
     })
   }  
 
+  const big = innerHeight <= 900 ? false : true;
+  console.log(big);
+  const style = {padding:'50px', border: '4px solid #00203f',
+           borderRadius: '2px 30px', borderStyle:'inset'};
+  style['padding'] = big ? '50px' : '10px';
+
   return (
-    <div style={{height:'80%'}}>
-      <h3>Health Survey Form</h3>
-      <Form /*onSubmit={submitForm}*/>
-        {
-          formGenerator(formData)
-        }
-        <ButtonGroup aria-label="Basic example">
-          <Button variant="outline-success" size="md" active onClick={submitForm}>
-            Submit
-          </Button>
-          <Button type="button" variant="outline-warning" size="md" active onClick={handleFormReset}>
-            Reset
-          </Button>
-          <Button type="button" variant="outline-info" size="md" active onClick={randomizeFormData}>
-            Randomize
-          </Button>
-        </ButtonGroup>
-      </Form>
-    </div>
+      <Container fluid className="custom-container" 
+                        style={style}>
+        {(innerHeight >= 720) && 
+        <Row>
+          <Col style={{color:'rgb(0, 32, 63)'}}>
+            <h1><b>Step 1:</b></h1> 
+            <p>
+              Below is a simulation of a survey form that collects health data. The fields shown below are either discrete or
+              continuous and some of them are categorical (dropdowns). The type and range of accepted values are shown in the
+              question box at the bottom right of the screen. The form loads up with prefilled random values. The <b>RESET</b> button clears out the fields and gives a fresh form. The <b>RANDOMIZE</b> button populates the fields randomly.
+              The <b>SUBMIT</b> button captures the form values and passes it onto the Noise Tuning section. Fields get highlighted
+              in red if they are not within the correct range.
+            </p>
+          </Col>
+        </Row>
+        }                
+        <Row>
+          <Col sm={12} md={12} lg={12}>
+            <div className="panel large-panel" style={{backgroundColor: '#00203f',color: 'white',border: 'solid white',borderRadius:'10px'}}>
+              <div style={{height:'80%'}}>
+                <h3>Health Survey Form</h3>
+                <Form className='healthSurveyForm'/*onSubmit={submitForm}*/>
+                  {
+                    formGenerator(formData)
+                  }
+                  <ButtonGroup aria-label="Basic example">
+                    <Button id="submitFormData" variant="outline-success" size="md" active onClick={submitForm}>
+                      Submit
+                    </Button>
+                    <Button id="resetFormData" type="button" variant="outline-warning" size="md" active onClick={handleFormReset}>
+                      Reset
+                    </Button>
+                    <Button id="randomizeFormData" type="button" variant="outline-info" size="md" active onClick={randomizeFormData}>
+                      Randomize
+                    </Button>
+                  </ButtonGroup>
+                </Form>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
   );
 };
 

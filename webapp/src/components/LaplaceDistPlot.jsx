@@ -46,6 +46,9 @@ function LaplaceDistPlot() {
               plot_bgcolor: '#00203FFF',
               paper_bgcolor: '#00203FFF',
               yaxis: {
+                  title : {
+                    text : 'Probabilities'
+                  },
                   tickcolor: "rgba(255,0,0,0.75)",
                   tickwidth: 7,
                   
@@ -54,8 +57,12 @@ function LaplaceDistPlot() {
                   
                   zerolinecolor: "green",
                   zerolinewidth: 2,
+                  range: [-1,10]
                 },
               xaxis: {
+                  title : {
+                    text: 'Noise Values'
+                  },
                   tickcolor: "blue",
                   tickwidth: 3,
                   
