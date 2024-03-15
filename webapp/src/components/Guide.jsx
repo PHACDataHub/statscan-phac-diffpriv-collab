@@ -12,10 +12,16 @@ function Guide() {
         }
     }
     const showHeader = innerHeight < 720 ? false : true;
+    const style = {color:'#00203FFF',
+                    padding:'50px',
+                    border: '4px solid #00203f',
+                    borderRadius: '2px 30px', borderStyle:'inset'};
+    style['padding'] = showHeader ? '50px' : '10px';
+
     return (
-        <Container fluid className="custom-container guide" style={{color:'#00203FFF'}}>
+        <Container fluid className="custom-container guide" style={style}>
             <Row>
-            <Col style={{paddingTop: '10px', border: 'solid #00203f',borderRadius: '10px'}}>
+            <Col>
                 <h1>
                     <b>Contents of this Demo</b>
                 </h1>

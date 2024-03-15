@@ -247,36 +247,26 @@ const App = () => {
         </div>
         <div className='form show getHeight'  
              style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-          <div ref={formRef} className='offsetBox'></div>
-          <div className='box'>
-             <Container fluid className="custom-container">
-              <Row>
-                <Col sm={12} md={12} lg={12}>
-                  <div className="panel large-panel" style={{backgroundColor: '#00203f',color: 'white',border: 'solid white',borderRadius:'10px'}}>
-                    <HealthSurveyForm />
-                  </div>
-                </Col>
-              </Row>
-            </Container>
+              <div ref={formRef} className='offsetBox'></div>
+              <div className='box'>
+                <HealthSurveyForm />
+              </div>
           </div>
-        </div>
         <div className='submittedData hide getHeight'  
              style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
-          <div ref={submittedDataRef} className='offsetBox'></div>
-          <div className='box'>
-          {Object.entries(submittedData).length != 0 &&
-              <IntermediateResults/>}
-          </div>
+              <div ref={submittedDataRef} className='offsetBox'></div>
+              <div className='box'>
+                {Object.entries(submittedData).length != 0 &&
+                  <IntermediateResults/>}
+              </div>
         </div>
         <div className='finalOutput hide getHeight'
              style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-          <div ref={finalOutputRef} className='offsetBox'></div>
-          <div className='box'>
-              {Object.entries(finalOutput).length != 0 &&
-                  <div className="panel large-panel" style={{backgroundColor: '#ADEFD1FF',color: 'white',border: 'solid #00203f',borderRadius:'10px'}}>
-                    <FinalOutput />
-                  </div> }
-          </div>
+              <div ref={finalOutputRef} className='offsetBox'></div>
+              <div className='box'>
+                  {Object.entries(finalOutput).length != 0 &&
+                    <FinalOutput />}
+              </div>
         </div>
     </div>
     </contexts.App.provider>
