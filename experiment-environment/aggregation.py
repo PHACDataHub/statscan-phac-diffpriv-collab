@@ -1,6 +1,7 @@
 import os
 import utilities
 import config
+import matplotlib.pyplot as plt
 import pandas as pd
 import shutil
 import typer
@@ -107,6 +108,84 @@ def calculate_average(query_dfs: List[str], arranged_columns: List[str], dp_type
     
     return average_df
 
+def plot_results(gdp_df, ldp_df, sdp_df, plots_dir, eps, wght=1.0):
+    """
+    Generates bar plots for the sum and mean of provinces. Needs to be better optimized and
+    modular for different groupings.
+    
+    Args:
+        gdp_df: Global DP dataframe.
+        ldp_df: Local DP dataframe.
+        sdp_df: Shuffle DP dataframe.
+        plots_dir: Output directory for plots.
+        eps: Epsilon value used.
+        wght: Weight value used.
+    """
+    original_prefix = 'original_'
+    gdp_prefix = 'gdp_'
+    ldp_prefix = 'ldp_'
+    sdp_prefix = 'sdp_'
+    abs_err_prefix = 'absolute_error'
+    
+    # Get all column names to be used without the prefixes
+    cols = []
+    for col in gdp_df.columns:
+        if gdp_prefix in col and abs_err_prefix not in col and 'query' not in col:
+            cols.append(col[len(gdp_prefix):])
+        
+    # Iterate through each df, for each column, and plot the corresponding plots
+    # Change index values to groups
+    """
+    PROVINCES MAP
+    -------------
+    0 AB
+    1 BC
+    2 MANATOBA
+    3 NEW BRUN
+    4 NEWFOUND LAB
+    5 NORTHWEST
+    6 NOVA SCOTIA
+    7 NUNAVUT
+    8 ON
+    9 PEI
+    10 QUEBEC
+    11 SASK
+    12 YUKON
+    """
+    categories = ['AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']
+    # Iterate through each column, outputting the plots
+    for col in cols:
+        # Define a new df to be properly formatted
+        df = pd.DataFrame()
+        if original_prefix + col not in gdp_df.columns:
+            gdp_df[original_prefix + col] = 0
+        if gdp_prefix + col not in gdp_df.columns:
+            gdp_df[gdp_prefix + col] = 0
+        df["No DP"] = gdp_df[original_prefix + col]
+        df["GDP"] = gdp_df[gdp_prefix + col]
+        if ldp_prefix + col not in ldp_df.columns:
+            ldp_df[ldp_prefix + col] = 0
+        df["LDP"] = ldp_df[ldp_prefix + col]
+        if sdp_prefix + col not in sdp_df.columns:
+            sdp_df[sdp_prefix + col] = 0
+        df["SDP"] = sdp_df[sdp_prefix + col]
+        df = df.replace('NaN', 0)
+        for i in range(df.shape[0]):
+            df = df.rename(index={i: categories[i % len(categories)]})
+        df_sum = df.iloc[:df.shape[0] // 2]
+        df_mean = df.iloc[df.shape[0] // 2:]
+        # Plot the results
+        title_sum = "Comparing Sums of Heights in Provinces (EPS=0.6, WGHT=1.0)"
+        title_mean = "Comparing Means of Heights in Provinces (EPS=0.6, WGHT=1.0)"
+        ax = df_sum.plot.bar(rot=0, title="Comparing Sums for " + col + " in Provinces (Epsilon=" + eps + ", Weight=" +str(wght) + ")")
+        plt.show()
+        plt.savefig(plots_dir + col + '_sum_test.png')
+        plt.close()
+        ax = df_mean.plot.bar(rot=0, title="Comparing Means for " + col + " in Provinces (Epsilon=" + eps + ", Weight=" + str(wght) + ")")
+        plt.show()
+        plt.savefig(plots_dir + col + '_mean_test.png')
+        plt.close()
+
 def aggregation_pipeline(cfg: config.Config, keys: dict, config_file: str) -> None:
     """
     Perform an aggregation pipeline to calculate averages for different privacy mechanisms and save the results.
@@ -118,6 +197,8 @@ def aggregation_pipeline(cfg: config.Config, keys: dict, config_file: str) -> No
     Returns:
         None. Results are saved to specified directories.
     """
+    # Add to quickly move results to subdirectories
+    folder = ''
     root_dirs = cfg.get(keys.ROOT_DIRS)
     epsilon = cfg.get(keys.EPSILON)
     gdp_query_results_filename = cfg.get(keys.GDP_QUERY_RESULTS_FILENAME)
@@ -146,9 +227,13 @@ def aggregation_pipeline(cfg: config.Config, keys: dict, config_file: str) -> No
     ldp_average_df = calculate_average(ldp_query_dfs, ldp_arrange_columns, ldp_type)
     sdp_average_df = calculate_average(sdp_query_dfs, sdp_arrange_columns, sdp_type)
     
-    agg_results_dir = f"{agg_results_dir}_{datetime.today()}_{epsilon}"
+    agg_results_dir = folder + f"{agg_results_dir}_{datetime.today()}_{epsilon}"
     if not os.path.exists(agg_results_dir):
         os.mkdir(agg_results_dir)
+        
+    plots_dir = agg_results_dir + f"/plots/"
+    if not os.path.exists(plots_dir):
+        os.mkdir(plots_dir)
         
     # Copy the config into the output folder
     shutil.copyfile(config_file, os.path.join(agg_results_dir, config_file))
@@ -161,6 +246,8 @@ def aggregation_pipeline(cfg: config.Config, keys: dict, config_file: str) -> No
     gdp_average_df.to_csv(gdp_average_df_path)
     ldp_average_df.to_csv(ldp_average_df_path)
     sdp_average_df.to_csv(sdp_average_df_path)
+    
+    plot_results(gdp_average_df, ldp_average_df, sdp_average_df, plots_dir, epsilon)
         
 
 def main(agg_config_file: str = typer.Argument(..., help="Location of the .yml aggregation config file (default name is aggregation_config.yml).")) -> None:
