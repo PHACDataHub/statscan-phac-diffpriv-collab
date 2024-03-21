@@ -6,16 +6,21 @@ import EpsilonSensitivitySliders from './EpsilonSensitivitySliders';
 import Dropdown from './Dropdown';
 import { classNames,pageNumbers } from '../initialStates';
 import { contexts } from '../contexts/AppContext';
+import { navigateToPage } from '../utility/general';
 
 function IntermediateResults() {
-  const { pageLoaded,setPageLoaded,sensitivity,epsilon } = useContext(contexts.App.context);
+  const { pageLoaded,setPageLoaded,sensitivity,epsilon,pageMeta,setPageMeta } = useContext(contexts.App.context);
   let b = (Math.round((sensitivity/epsilon)*100)/100);
   b = b >= 10 ? b.toFixed(1) : b.toFixed(2);
   const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
-    useEffect(() => {
-      if(pageLoaded)
-        window.scrollTo({top:height*(pageNumbers["intermediate"]-1),behavior: "smooth"});
+  useEffect(() => {
+    let smallScreen = false;
+    let pageMetaCopy = pageMeta;
+    const pageNumber = pageNumbers["intermediate"];
+    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+    if(pageLoaded)
+      window.scrollTo({top:height*(pageNumbers["intermediate"]-1),behavior: "smooth"});
     }, []);
 
   return (
@@ -26,7 +31,10 @@ function IntermediateResults() {
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 2:</b></h1> 
             <p>
-              Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+            This section showcases the process of converting raw(private) data into privatized data by the addition of noise, as depicted in the <b onClick={()=>navigateToPage('page2')}><u>image</u></b>.
+            The table shows the raw form values vs the noised privatized values. The graph contains a noise distribution which changes based on the kind of noise - Laplace or Gaussian being selcted from the dropdown. 
+            This distribution is from where the noise values are sampled and then applied to the orignal form input. 
+            The tightness and spread of the distribution are controlled by the Sensitivity and Epsilon(ε) sliders which ultimatley govern the probabilty of getting lower/higher noise values. A much detailed explanation can be found in the question box.
             </p>
           </Col>
         </Row>

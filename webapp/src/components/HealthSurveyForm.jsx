@@ -6,9 +6,13 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 // import Row from 'react-bootstrap/Row';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { contexts } from '../contexts/AppContext';
+import { pageNumbers } from '../initialStates';
 
 const HealthSurveyForm = () => {
-  const { formData,setFormData,handleFormSubmit,handleFormReset,submitted,setSubmitted,setFilledAndValid } = useContext(contexts.App.context);
+  const { formData,setFormData,
+          handleFormSubmit,handleFormReset,
+          submitted,setSubmitted,setFilledAndValid,
+          pageMeta,setPageMeta } = useContext(contexts.App.context);
 
   const validateInput = (name, value) => {
     const { range,performIntegerCheck,type } = formData[name];
@@ -71,6 +75,14 @@ const HealthSurveyForm = () => {
   };
 
   useEffect(() => {
+    //handle small screen sizes
+    let smallScreen = true;
+    let pageMetaCopy = pageMeta;
+    const pageNumber = pageNumbers['surveyForm'];
+    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+  },[]);
+
+  useEffect(() => {
     if(submitted > 0){
       const copiedFormData = JSON.parse(JSON.stringify(formData));
       const filledAndValid = isFormFilledAndValid(copiedFormData);
@@ -131,9 +143,9 @@ const HealthSurveyForm = () => {
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 1:</b></h1> 
             <p>
-              Below is a simulation of a survey form that collects health data. The fields shown below are either discrete or
-              continuous and some of them are categorical (dropdowns). The type and range of accepted values are shown in the
-              question box at the bottom right of the screen. The form loads up with prefilled random values. The <b>RESET</b> button clears out the fields and gives a fresh form. The <b>RANDOMIZE</b> button populates the fields randomly.
+              Below is a simulation of a survey form that collects health data. The form loads with prefilled random values and the fields shown below are either discrete or
+              continuous. The type and range of accepted values are shown in the
+              question box at the bottom right of the screen.  The <b>RESET</b> button clears out any filled values. The <b>RANDOMIZE</b> button populates the fields randomly.
               The <b>SUBMIT</b> button captures the form values and passes it onto the Noise Tuning section. Fields get highlighted
               in red if they are not within the correct range.
             </p>

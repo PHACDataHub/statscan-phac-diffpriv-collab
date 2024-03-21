@@ -19,6 +19,25 @@ body {
   padding: 0;
 }
 
+.page4qBoxTable tbody {
+  border-width: 1px;
+}
+
+.page4qBoxTable th {
+   text-align: center; 
+  vertical-align: middle; border-width: 1px;
+}
+
+.page4qBoxTable tr {
+  border-width: 1px;
+}
+
+.page4qBoxTable td{
+  border-width: 1px;
+  text-align: center; 
+  vertical-align: middle;
+}
+
 .content {
   display: flex;
   min-height: 100vh;
