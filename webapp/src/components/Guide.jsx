@@ -31,7 +31,7 @@ function Guide() {
                         <>This section</>
                     } simulates a sample Health Form that collects health data for a statistical survey. In a normal scenario the values would be sent 
                     to the server using a standard encryption protocol and then saved in the database. However in the case of Local DP,
-                        the values are masked before they even leave the client's device, thus adding anonymity to the data <b>AT source</b>.
+                        the values are adjusted before they even leave the client's device, thus adding anonymity to the data <b>AT source</b>.
                     </p>
                     </li>
                     <li>
@@ -42,8 +42,7 @@ function Guide() {
                         <>The <b onClick={()=>navigateToPage('intermediate')}><u>Noise Tuning</u></b></> :
                         <>This </>
                         }  section helps visualize what the noise tuning would look like. It includes dropdowns and sliders 
-                            to select the <b>kind</b> and adjust the <b>amount</b> of noise. In a real world scenario, the type and amount
-                            of noise would have already been pre configured, and the user would not have control over the amount of privacy being guaranteed.
+                            to select the <b>noise distribution type</b> and adjust the <b>amount</b> of noise picked. In a real world scenario, the <b>distribution type</b> and <b>ε</b> value used will already be configured, where the client would not need to manually adjust these.
 
                         </p>
                     </li>
@@ -55,8 +54,9 @@ function Guide() {
                         <>The <b onClick={()=>navigateToPage('finalResults')}><u>Final Result</u></b></> :
                         <>This</>
                         } section shows a JSON representation of the differentially privatized
-                            results. This JSON represented data is what reaches the server and gets stored in the database. The 
-                            privatized data can then be queried and used for further analyses.
+                            results. These results can be approved by a user before submission if the system is designed to do.
+                            This JSON represented data is what reaches the server and gets stored in the database.
+                            The privatized data can then be queried and used for further analyses.
                         </p>
                     </li>
                 </ul>

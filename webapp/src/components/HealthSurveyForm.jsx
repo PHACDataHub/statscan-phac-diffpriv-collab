@@ -143,9 +143,9 @@ const HealthSurveyForm = () => {
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 1:</b></h1> 
             <p>
-              Below is a simulation of a survey form that collects health data. The fields shown below are either discrete or
-              continuous and some of them are categorical (dropdowns). The type and range of accepted values are shown in the
-              question box at the bottom right of the screen. The form loads up with prefilled random values. The <b>RESET</b> button clears out the fields and gives a fresh form. The <b>RANDOMIZE</b> button populates the fields randomly.
+              Below is a simulation of a survey form that collects health data. The form loads with prefilled random values and the fields shown below are either discrete or
+              continuous. The type and range of accepted values are shown in the
+              question box at the bottom right of the screen.  The <b>RESET</b> button clears out any filled values. The <b>RANDOMIZE</b> button populates the fields randomly.
               The <b>SUBMIT</b> button captures the form values and passes it onto the Noise Tuning section. Fields get highlighted
               in red if they are not within the correct range.
             </p>

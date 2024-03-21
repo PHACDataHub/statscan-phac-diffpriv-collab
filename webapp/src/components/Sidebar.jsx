@@ -8,7 +8,7 @@ function Sidebar() {
     return (
         <div className='sidebar'>
             <SideBarItem pageNumber={pageNumbers['page1']} text='Page 1' disabled={false}/>
-            <SideBarItem pageNumber={pageNumbers['page2']} text='What Is ?' disabled={false}/>
+            <SideBarItem pageNumber={pageNumbers['page2']} text='What Is LDP?' disabled={false}/>
             <SideBarItem pageNumber={pageNumbers['page3']} text='Index' disabled={false}/>
             <SideBarItem pageNumber={pageNumbers['surveyForm']} text='Survey Form' disabled={false}/>
             <SideBarItem pageNumber={pageNumbers['intermediate']} text='Tune Noise' disabled={Object.entries(submittedData).length == 0}/>

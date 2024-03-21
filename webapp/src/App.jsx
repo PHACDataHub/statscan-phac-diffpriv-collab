@@ -14,6 +14,7 @@ import Qbox from './components/Qbox';
 import Sidebar from './components/Sidebar';
 import Guide from './components/Guide';
 import WhatIs from './components/WhatIs';
+import PageOne from './components/PageOne';
 
 const App = () => {
   const formRef = useRef(null);
@@ -231,8 +232,13 @@ const App = () => {
           <Qbox />
           <div className='progressbar'></div>
           <Sidebar />
-          <div className='page1' 
-              style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}>
+          <div className='page1'
+              style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={whatIsRef} className='offsetBox'></div>
+                <div className='box'>
+                  <PageOne/>
+                </div>
+              {/* style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}> */}
           </div>
           <div className='page2' 
               style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
