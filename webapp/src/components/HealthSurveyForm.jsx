@@ -6,9 +6,13 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 // import Row from 'react-bootstrap/Row';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { contexts } from '../contexts/AppContext';
+import { pageNumbers } from '../initialStates';
 
 const HealthSurveyForm = () => {
-  const { formData,setFormData,handleFormSubmit,handleFormReset,submitted,setSubmitted,setFilledAndValid } = useContext(contexts.App.context);
+  const { formData,setFormData,
+          handleFormSubmit,handleFormReset,
+          submitted,setSubmitted,setFilledAndValid,
+          pageMeta,setPageMeta } = useContext(contexts.App.context);
 
   const validateInput = (name, value) => {
     const { range,performIntegerCheck,type } = formData[name];
@@ -69,6 +73,14 @@ const HealthSurveyForm = () => {
         setFormData((prevFormData) => { return { ...prevFormData, [name] : { ...prevFormData[name], ["border"] : (value == '' || !isValid) ? true : false }} })
     }
   };
+
+  useEffect(() => {
+    //handle small screen sizes
+    let smallScreen = true;
+    let pageMetaCopy = pageMeta;
+    const pageNumber = pageNumbers['surveyForm'];
+    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+  },[]);
 
   useEffect(() => {
     if(submitted > 0){

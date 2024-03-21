@@ -1,16 +1,10 @@
 import React,{useEffect,useContext} from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { pageNumbers,classNames } from '../initialStates';
+import { navigateToPage } from '../utility/general';
 
 function Guide() {
 
-    const navigateToPage = (pageName) => {
-        if(document.getElementsByClassName(classNames.getHeight).length > 0){
-            const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight); 
-            const num = pageNumbers[pageName];
-            window.scrollTo({top:height*(num-1),behavior: "smooth"});
-        }
-    }
     const showHeader = innerHeight < 720 ? false : true;
     const style = {color:'#00203FFF',
                     padding:'50px',

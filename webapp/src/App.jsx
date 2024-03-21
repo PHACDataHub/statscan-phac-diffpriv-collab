@@ -4,7 +4,7 @@ import { Container, Row, Col, Form } from 'react-bootstrap';
 import { generateNoisyObject } from './utility/generateNoisyObject';
 import { contexts } from './contexts/AppContext';
 import { EPSILON,SENSITIVITY } from './utility/constants';
-import { initFormState,classNames,pageNumbers } from './initialStates';
+import { initFormState,classNames,pageNumbers,pageMetaData } from './initialStates';
 
 import HealthSurveyForm from './components/HealthSurveyForm';
 import FinalOutput from './components/FinalOutput'
@@ -24,7 +24,8 @@ const App = () => {
   const finalOutputRef = useRef(null);
   const guideRef = useRef(null);
   const whatIsRef = useRef(null);
-  const [pageNo,setPageNo] = useState(0);
+  const [pageNo,setPageNo] = useState(1);
+  const [pageMeta,setPageMeta] = useState(pageMetaData);
   const [formData, setFormData] = useState(initFormState);
   const [submittedData, setSubmittedData] = useState({});
   const [noisyData, setNoisyData] = useState({});
@@ -221,54 +222,56 @@ const App = () => {
                          setFilledAndValid,
                          finalOutput,setFinalOutput,
                          qboxRef,pageNo,setPageNo,
-                         pageLoaded,setPageLoaded};
+                         pageLoaded,setPageLoaded,
+                         pageMeta,setPageMeta};
 
   return (
     <contexts.App.provider value={contextValues}>
-    <div ref={pages} style={{ height: '100%',width: '100%'}}>
-        <Qbox />
-        <div className='progressbar'></div>
-        <Sidebar />
-        <div className='page1' 
-             style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}></div>
-        <div className='page2' 
-             style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-              <div ref={whatIsRef} className='offsetBox'></div>
-              <div className='box'>
-                <WhatIs/>
-              </div>
-             </div>
-        <div className='page3' 
-             style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-              <div ref={guideRef} className='offsetBox'></div>
-              <div className='box'>
-                <Guide/>
-              </div>
-        </div>
-        <div className='form show getHeight'  
-             style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-              <div ref={formRef} className='offsetBox'></div>
-              <div className='box'>
-                <HealthSurveyForm />
-              </div>
+      <div ref={pages} style={{ height: '100%',width: '100%'}}>
+          <Qbox />
+          <div className='progressbar'></div>
+          <Sidebar />
+          <div className='page1' 
+              style={{ height: '100%',width: '100%',backgroundColor: '#3d958c',padding: '0',borderBottom:'solid'}}>
           </div>
-        <div className='submittedData hide getHeight'  
-             style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
-              <div ref={submittedDataRef} className='offsetBox'></div>
-              <div className='box'>
-                {Object.entries(submittedData).length != 0 &&
-                  <IntermediateResults/>}
-              </div>
-        </div>
-        <div className='finalOutput hide getHeight'
-             style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
-              <div ref={finalOutputRef} className='offsetBox'></div>
-              <div className='box'>
-                  {Object.entries(finalOutput).length != 0 &&
-                    <FinalOutput />}
-              </div>
-        </div>
-    </div>
+          <div className='page2' 
+              style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={whatIsRef} className='offsetBox'></div>
+                <div className='box'>
+                  <WhatIs/>
+                </div>
+          </div>
+          <div className='page3' 
+              style={{ position:'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={guideRef} className='offsetBox'></div>
+                <div className='box'>
+                  <Guide/>
+                </div>
+          </div>
+          <div className='form show getHeight'  
+              style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={formRef} className='offsetBox'></div>
+                <div className='box'>
+                  <HealthSurveyForm />
+                </div>
+          </div>
+          <div className='submittedData hide getHeight'  
+              style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF', padding: '0',borderBottom:'solid'}}>
+                <div ref={submittedDataRef} className='offsetBox'></div>
+                <div className='box'>
+                  {Object.entries(submittedData).length != 0 &&
+                    <IntermediateResults/>}
+                </div>
+          </div>
+          <div className='finalOutput hide getHeight'
+              style={{position: 'relative',height: '100%',width: '100%',backgroundColor: '#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={finalOutputRef} className='offsetBox'></div>
+                <div className='box'>
+                    {Object.entries(finalOutput).length != 0 &&
+                      <FinalOutput />}
+                </div>
+          </div>
+      </div>
     </contexts.App.provider>
   );
 };

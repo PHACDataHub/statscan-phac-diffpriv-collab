@@ -5,9 +5,10 @@ import { contexts } from '../contexts/AppContext';
 import Button from 'react-bootstrap/Button';
 import { classNames } from '../initialStates';
 import { pageNumbers } from '../initialStates';
+import { navigateToPage } from '../utility/general';
 
 function FinalOutput() {
-  let { finalOutput,pageLoaded,setPageLoaded } = useContext(contexts.App.context);
+  let { finalOutput,pageLoaded,setPageLoaded,pageMeta,setPageMeta,qboxRef } = useContext(contexts.App.context);
 
   let finalOutputParsed = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
                                            .replaceAll("{","{\n\t")
@@ -17,6 +18,11 @@ function FinalOutput() {
   const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
   useEffect(()=>{
+    let smallScreen = true;
+    let pageMetaCopy = pageMeta;
+    const pageNumber = pageNumbers['finalResults'];
+    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+    // qboxRef.current.style.display = smallScreen ? 'block' : 'none';
     if(pageLoaded)
       window.scrollTo({top:height*(pageNumbers["finalResults"]-1),behavior:"smooth"});
     else{
@@ -69,7 +75,9 @@ function FinalOutput() {
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 3:</b></h1> 
             <p>
-              Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+              The data shown below is a JSON representation of the privatized data, that is ready for use. The noise adjustment done in the previous step adds plausible
+              deniability to it. This step depicts the part of the <b onClick={()=>navigateToPage('page2')}><u>image</u></b> where the privatized data is ready to be transferred
+              from the data producer to the untrusted data curator. The data can be downloaded locally either in JSON or CSV formats.
             </p>
           </Col>
         </Row>
