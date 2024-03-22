@@ -1,9 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-// import Form from 'react-bootstrap/Form';
-// import Col from 'react-bootstrap/Col';
-// import Row from 'react-bootstrap/Row';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { contexts } from '../contexts/AppContext';
 import { pageNumbers } from '../initialStates';

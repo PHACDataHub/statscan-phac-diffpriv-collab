@@ -3,15 +3,23 @@ import { contexts } from '../contexts/AppContext';
 import { classNames } from '../initialStates';
 
 function SideBarItem(props) {
-    const {pageNo,setPageNo} = useContext(contexts.App.context);
+    const {pageNo,setPageNo,submittedData,finalOutput} = useContext(contexts.App.context);
     const [className,setClassName] = useState('sidebaritem');
 
     const navigateToPage = () => {
         if(!props.disabled){
             //setPageNo(props.pageNumber);
             const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight); 
-            const num = props.pageNumber;
-            window.scrollTo({top:height*(num-1),behavior: "smooth"});
+            let pageNumber = props.pageNumber;
+            if(pageNumber >= 7){
+                if(Object.entries(submittedData).length == 0){
+                    pageNumber -= 1;
+                }
+                if(Object.entries(finalOutput).length == 0){
+                    pageNumber -= 1;
+                }
+            }
+            window.scrollTo({top:height*(pageNumber-1),behavior: "smooth"});
         }
     }
 
@@ -31,10 +39,11 @@ function SideBarItem(props) {
     }
 
     useEffect(() => {
-        setClass()
+        setClass();
     },[pageNo])
+
     return (
-        <div className={className} >
+        <div className={className} style={props.style}>
             <section style={{position:'absolute',top:'50%',left:'50%',
                             transform:'translate(-50%,-50%)',fontWeight:'bold',
                             textAlign: 'center'}}>{props.text}</section>

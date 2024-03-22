@@ -9,12 +9,13 @@ import { initFormState,classNames,pageNumbers,pageMetaData } from './initialStat
 import HealthSurveyForm from './components/HealthSurveyForm';
 import FinalOutput from './components/FinalOutput'
 import './App.css';
+import PageOne from './components/PageOne';
+import WhatIs from './components/WhatIs';
+import Guide from './components/Guide';
 import IntermediateResults from './components/IntermediateResults';
 import Qbox from './components/Qbox';
 import Sidebar from './components/Sidebar';
-import Guide from './components/Guide';
-import WhatIs from './components/WhatIs';
-import PageOne from './components/PageOne';
+import GoingForward from './components/GoingForward';
 
 const App = () => {
   const formRef = useRef(null);
@@ -25,6 +26,7 @@ const App = () => {
   const finalOutputRef = useRef(null);
   const guideRef = useRef(null);
   const whatIsRef = useRef(null);
+  const goingForwardRef = useRef(null);
   const [pageNo,setPageNo] = useState(1);
   const [pageMeta,setPageMeta] = useState(pageMetaData);
   const [formData, setFormData] = useState(initFormState);
@@ -119,35 +121,42 @@ const App = () => {
         const timing = {duration: 500,iterations: 1};
         let showQBox = 'block';
         let pageNoCopy = qboxRef.current.pageNo;
+        const pages = Object.keys(pageNumbers);
+        const toWidths = pages.map((_,idx) => ((100*(idx)/(pages.length-1)).toString()+'%'));
         if(entry.target.classList.contains('page1') && entry.isIntersecting){
-          toWidth = '16.67%' ;
+          toWidth = toWidths[0];
           showQBox = 'none';
           pageNoCopy = 1;
         }
         if(entry.target.classList.contains('page2') && entry.isIntersecting){
-          toWidth = '33.33%';
+          toWidth = toWidths[1];
           showQBox = 'block'; 
           pageNoCopy = 2;
         }
         if(entry.target.classList.contains('page3') && entry.isIntersecting){
-          toWidth = '50.01%';
+          toWidth = toWidths[2];
           showQBox = 'block'; 
           pageNoCopy = 3;
         }
         if(entry.target.classList.contains('form') && entry.isIntersecting){
-          toWidth = '66.67%';
+          toWidth = toWidths[3];
           showQBox = 'block'; 
           pageNoCopy = 4;
         }
         if(entry.target.classList.contains('submittedData') && entry.isIntersecting){
-          toWidth = '80%';
+          toWidth = toWidths[4];
           showQBox = 'block'; 
           pageNoCopy = 5;
         }
         if(entry.target.classList.contains('finalOutput') && entry.isIntersecting){
-          toWidth = '100%';
+          toWidth = toWidths[5];
           showQBox = 'block'; 
           pageNoCopy = 6;
+        }
+        if(entry.target.classList.contains('goingForward') && entry.isIntersecting){
+          toWidth = toWidths[6];
+          showQBox = 'block'; 
+          pageNoCopy = 7;
         }
         document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
         previousWidth.current = toWidth;          
@@ -174,6 +183,7 @@ const App = () => {
       pageObserver.observe(document.getElementsByClassName('form')[0]);
       pageObserver.observe(document.getElementsByClassName('submittedData')[0]);
       pageObserver.observe(document.getElementsByClassName('finalOutput')[0]);
+      pageObserver.observe(document.getElementsByClassName('goingForward')[0]);
       qboxRef.current.pageNo = 1;
     }
     if(formRef.current){
@@ -194,6 +204,10 @@ const App = () => {
 
     if(whatIsRef.current){
       observer.observe(whatIsRef.current);
+    }
+
+    if(goingForwardRef.current){
+      observer.observe(goingForwardRef.current);
     }
 
     if(filledAndValid && submitted > 0){
@@ -275,6 +289,13 @@ const App = () => {
                 <div className='box'>
                     {Object.entries(finalOutput).length != 0 &&
                       <FinalOutput />}
+                </div>
+          </div>
+          <div className='form goingForward'  
+              style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+                <div ref={goingForwardRef} className='offsetBox'></div>
+                <div className='box'>
+                  <GoingForward/>
                 </div>
           </div>
       </div>
