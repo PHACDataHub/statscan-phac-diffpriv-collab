@@ -33,10 +33,10 @@ function WhatIs() {
                         </p>
                         <p>
                             <b>Local Differential privacy</b> is a DP approach wherein the privacy of a user's data
-                            is guranteed by introducing some randomness aka <b>noise</b> to the data. The kind and amount
-                            of noise is tuned based on the nature of the data. The salience of Local DP lies 
-                            in the fact that the <b>noise is introduced at source</b> - the client/data generator, thereby nullifying any
-                            scope of data tampering by external entities - data curator/data consumer. The image on the right
+                            is enhanced by introducing some randomness, referred to as <b>noise</b>, to the data. The kind and amount
+                            of noise is seleted based on the nature of the data. The salience of Local DP lies 
+                            in the fact that the <b>noise is introduced at source</b> - the client/data generator, thereby providing clients with plausible deniability for any 
+                            claims to the individual made by external entities -  data curator/data consumer. The image on the right
                             depicts exactly how Local DP works in practice 
                             (source <a href="https://blog.openmined.org/basics-local-differential-privacy-vs-global-differential-privacy/">OpenMined</a>) and
                             this demo simulates the <b>lower half of the image</b> that focuses on noise injection before the data leaves the client's device.

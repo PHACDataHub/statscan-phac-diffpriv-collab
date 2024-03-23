@@ -20,7 +20,7 @@ function Guide() {
                 <h1>
                     <b>Contents of this Demo</b>
                 </h1>
-                <p>There are 3 sections that demonstrate the inner workings of Local Differential privacy :
+                <p>There are 3 sections that demonstrate the inner workings of Local DP :
                 </p>
                 <ul style={{listStyleType:'square'}}>
                     <li>
@@ -32,7 +32,8 @@ function Guide() {
                         <>This section</>
                     } simulates a sample Health Form that collects health data for a statistical survey. In a normal scenario the values would be sent 
                     to the server using a standard encryption protocol and then saved in the database. However in the case of Local DP,
-                        the values are adjusted before they even leave the client's device, thus adding anonymity to the data <b>AT source</b>.
+                        the values are adjusted before they even leave the client's device, thus adding anonymity to the data <b>AT source</b> with a corresponding tradeoff 
+                        to the data's utility when analyzed.
                     </p>
                     </li>
                     <li>
