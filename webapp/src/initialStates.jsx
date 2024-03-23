@@ -270,6 +270,12 @@ export const pageMetaData = {
                               from the data producer to the untrusted data curator. The data can be downloaded locally either in JSON or CSV formats.
                             </p>
                          </>
+  },
+  7 : {
+    "smallScreen" : false,
+    "pageJSX" : "",
+    "qBoxJSX" : "",
+    "qBoxAlternateJSX" : <></>
   }
 }
 
@@ -280,4 +286,5 @@ export const pageNumbers = {
   'surveyForm' : 4,
   'intermediate' : 5,
   'finalResults' : 6,
+  'goingForward' : 7,
 }
