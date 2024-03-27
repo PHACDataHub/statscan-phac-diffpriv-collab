@@ -56,9 +56,8 @@ export const closeBox = () => {
 }
 
 function Qbox() {
-    const {pageNo,qboxRef,pageMeta} = useContext(contexts.App.context);
+    const {pageNo,qboxRef,pageMeta,pageMetaRef} = useContext(contexts.App.context);
     const number = qboxRef.current == null ? 'None' : qboxRef.current.pageNo; 
-
     return (
         <>
             <div className='overlay' style={{display: 'block'}}>
@@ -70,8 +69,8 @@ function Qbox() {
                             top:"50%",left:"50%",transform:"translate(-50%,-50%)",overflowY:'scroll',
                             padding:'30px',border:'solid',borderRadius:'10px'}}>
                                 {/* <h1>{pageNo}</h1> */}
-                                {pageMeta[pageNo]["smallScreen"] && pageMeta[pageNo]['qBoxAlternateJSX']}
-                                {pageMeta[pageNo]['qBoxJSX']}
+                                {pageMetaRef.current[pageNo]["smallScreen"] && pageMetaRef.current[pageNo]['qBoxAlternateJSX']}
+                                {pageMetaRef.current[pageNo]['qBoxJSX']}
                             </div>
             </div>
             <div ref={qboxRef} className='q-box' onClick={openBox}>

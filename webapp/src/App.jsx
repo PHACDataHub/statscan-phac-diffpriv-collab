@@ -27,6 +27,7 @@ const App = () => {
   const guideRef = useRef(null);
   const whatIsRef = useRef(null);
   const goingForwardRef = useRef(null);
+  const pageMetaRef = useRef(pageMetaData);
   const [pageNo,setPageNo] = useState(1);
   const [pageMeta,setPageMeta] = useState(pageMetaData);
   const [formData, setFormData] = useState(initFormState);
@@ -160,7 +161,9 @@ const App = () => {
         }
         document.getElementsByClassName('progressbar')[0].animate({width: [fromWidth,toWidth]},timing)
         previousWidth.current = toWidth;          
-        qboxRef.current.style.display = (pageNoCopy >= pageNumbers['surveyForm']) ? 'block' : 'none';
+        // qboxRef.current.style.display = (pageNoCopy >= pageNumbers['surveyForm']) ? 'block' : 'none';
+        //console.log(pageMeta);
+        qboxRef.current.style.display = pageMetaRef.current[pageNoCopy].showQBox ? 'block' : 'none';
         qboxRef.current.pageNo = pageNoCopy;
         setPageNo(pageNoCopy);
         el.style.width = toWidth;
@@ -171,6 +174,7 @@ const App = () => {
   const pageObserver = new IntersectionObserver(callback2,options2);
 
   useEffect(()=>{
+      document.title = "LDP Demo";
       document.getElementById("randomizeFormData").click();
       document.getElementById("submitFormData").click();
   },[]);
@@ -238,7 +242,8 @@ const App = () => {
                          finalOutput,setFinalOutput,
                          qboxRef,pageNo,setPageNo,
                          pageLoaded,setPageLoaded,
-                         pageMeta,setPageMeta};
+                         pageMeta,setPageMeta,
+                         pageMetaRef};
 
   return (
     <contexts.App.provider value={contextValues}>
@@ -292,7 +297,7 @@ const App = () => {
                 </div>
           </div>
           <div className='form goingForward'  
-              style={{ position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
+              style={{ display: 'none',position: 'relative', height: '100%',width: '100%',backgroundColor:'#ADEFD1FF',padding: '0',borderBottom:'solid'}}>
                 <div ref={goingForwardRef} className='offsetBox'></div>
                 <div className='box'>
                   <GoingForward/>

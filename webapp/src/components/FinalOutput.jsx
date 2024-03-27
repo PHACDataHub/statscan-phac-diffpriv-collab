@@ -8,7 +8,7 @@ import { pageNumbers } from '../initialStates';
 import { navigateToPage } from '../utility/general';
 
 function FinalOutput() {
-  let { finalOutput,pageLoaded,setPageLoaded,pageMeta,setPageMeta,qboxRef } = useContext(contexts.App.context);
+  let { finalOutput,pageLoaded,setPageLoaded,pageMeta,setPageMeta,pageMetaRef } = useContext(contexts.App.context);
 
   let finalOutputParsed = JSON.stringify(finalOutput).replaceAll(",",",\n\t")
                                            .replaceAll("{","{\n\t")
@@ -18,10 +18,14 @@ function FinalOutput() {
   const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
   useEffect(()=>{
-    let smallScreen = true;
-    let pageMetaCopy = pageMeta;
+    let smallScreen = !(innerHeight > 720);
+    let pageMetaCopy = JSON.parse(JSON.stringify(pageMeta));
     const pageNumber = pageNumbers['finalResults'];
-    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+    pageMetaRef.current[pageNumber].showQBox = smallScreen;
+    pageMetaRef.current[pageNumber].smallScreen = smallScreen;
+    // pageMetaRef.current = pageMetaCopy;
+    // setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen , ["showQBox"] : smallScreen }}});
+    // setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["showQBox"] : smallScreen }}});
     // qboxRef.current.style.display = smallScreen ? 'block' : 'none';
     if(pageLoaded)
       window.scrollTo({top:height*(pageNumbers["finalResults"]-1),behavior:"smooth"});
@@ -39,7 +43,6 @@ function FinalOutput() {
   }
 
   const download = (type) => {
-    console.log(type);
     let link = '';
     let extension = '';
     let content = [];
@@ -67,10 +70,15 @@ function FinalOutput() {
       document.body.removeChild(a);
   }
 
+  const big = innerHeight < 850 ? false :true;
+  let style = {backgroundColor : "#adefd1ff", color: "white"};
+  style = big ? {...style,padding:'50px', paddingRight:'100px', 
+                       border: '4px solid #00203f',borderRadius: '2px 30px', borderStyle:'inset'} : {...style};
+
   return (
-    <div className="panel large-panel" style={{backgroundColor: '#ADEFD1FF',color: 'white', padding: '50px',
-                                              border: '4px solid #00203f',borderRadius: '2px 30px', borderStyle:'inset'}}>
+    <div className="large-panel" style={style}>
       <Container fluid>
+        {(innerHeight > 720) && 
         <Row>
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 3:</b></h1> 
@@ -81,6 +89,7 @@ function FinalOutput() {
             </p>
           </Col>
         </Row>
+        }
         <Row>
           <Col xs={12} md={12} lg={12}>
           <CopyBlock

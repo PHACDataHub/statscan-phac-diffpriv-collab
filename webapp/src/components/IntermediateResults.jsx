@@ -9,35 +9,45 @@ import { contexts } from '../contexts/AppContext';
 import { navigateToPage } from '../utility/general';
 
 function IntermediateResults() {
-  const { pageLoaded,setPageLoaded,sensitivity,epsilon,pageMeta,setPageMeta } = useContext(contexts.App.context);
+  const { pageLoaded,setPageLoaded,sensitivity,epsilon,pageMeta,setPageMeta,pageMetaRef } = useContext(contexts.App.context);
   let b = (Math.round((sensitivity/epsilon)*100)/100);
   b = b >= 10 ? b.toFixed(1) : b.toFixed(2);
   const height = Number(document.getElementsByClassName(classNames.getHeight)[0].clientHeight);
 
   useEffect(() => {
-    let smallScreen = false;
-    let pageMetaCopy = pageMeta;
-    const pageNumber = pageNumbers["intermediate"];
-    setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
+    let smallScreen = !(innerHeight > 720);
+    let pageMetaCopy = JSON.parse(JSON.stringify(pageMeta));
+    const pageNumber = pageNumbers['intermediate'];
+    pageMetaRef.current[pageNumber].showQBox = true;
+    pageMetaRef.current[pageNumber].smallScreen = smallScreen;
+    // pageMetaRef.current = pageMetaCopy;
+    // setPageMeta((prevPageMeta) => { return { ...prevPageMeta, [pageNumber] : { ...prevPageMeta[pageNumber], ["smallScreen"] : smallScreen }}});
     if(pageLoaded)
       window.scrollTo({top:height*(pageNumbers["intermediate"]-1),behavior: "smooth"});
     }, []);
 
+  const big = innerHeight < 850 ? false :true;
+  const style = big ? {padding:'50px', paddingRight:'100px', 
+                       border: '4px solid #00203f',borderRadius: '2px 30px', borderStyle:'inset'} : {};
   return (
     <Container fluid className="custom-container"
-                          style={{padding:'50px', paddingRight:'100px', 
-                                  border: '4px solid #00203f',borderRadius: '2px 30px', borderStyle:'inset'}}>
+                          style={style}>
+        {(innerHeight > 720) && 
         <Row>
           <Col style={{color:'rgb(0, 32, 63)'}}>
             <h1><b>Step 2:</b></h1> 
             <p>
-            This section showcases the process of converting raw(private) data into privatized data by the addition of noise, as depicted in the <b onClick={()=>navigateToPage('page2')}><u>image</u></b>.
-            The table shows the raw form values vs the noised privatized values. The graph contains a noise distribution which changes based on the kind of noise - Laplace or Gaussian being selcted from the dropdown. 
-            This distribution is from where the noise values are sampled and then applied to the orignal form input. 
-            The tightness and spread of the distribution are controlled by the Sensitivity and Epsilon(ε) sliders which ultimatley govern the probabilty of getting lower/higher noise values. A much detailed explanation can be found in the question box.
+            Here, we showcase how a user response can be privatized with LDP by adding noise to the data (as depicted in <b onClick={()=>navigateToPage('page2')}><u>image</u></b>).
+            The table below shows the user's response before and after noise is applied to it.
+            The graph on the right presents the distribution being used to add noise to the initial response, based on the Laplace or Gaussian distribution selected from the corresponding dropdown. 
+            This distribution is where the noise values added to the response are sampled from. 
+            The tightness and spread of the distribution are controlled by the Sensitivity and Epsilon(ε) sliders which ultimatley govern the probabilty of getting lower/higher noise values. 
+            The <b>Confirm Changes</b> button takes the noised values from the table and passes it onto the next section.
+            Click on the bottom right question box for more details.
             </p>
           </Col>
         </Row>
+        }
         <Row>
             <Col xs={8}>
               <SurveyResults className="intermediateresults"/>

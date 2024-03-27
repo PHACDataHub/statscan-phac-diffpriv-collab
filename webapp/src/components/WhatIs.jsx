@@ -15,7 +15,6 @@ function WhatIs() {
         const imgHeight = imgRef.current.clientHeight;
         const centerWidth = (colWidth - imgWidth)/2;
         const centerHeight = (colHeight - imgHeight)/2;
-        console.log(colWidth,colHeight,imgWidth,imgHeight);
         imgRef.current.style.transform = `translate(${centerWidth}px,${centerHeight}px)`;
     },[colRef.current,imgRef.current])
 
@@ -34,7 +33,7 @@ function WhatIs() {
                         <p>
                             <b>Local Differential privacy</b> is a DP approach wherein the privacy of a user's data
                             is enhanced by introducing some randomness, referred to as <b>noise</b>, to the data. The kind and amount
-                            of noise is seleted based on the nature of the data. The salience of Local DP lies 
+                            of noise is selected based on the nature of the data. The salience of Local DP lies 
                             in the fact that the <b>noise is introduced at source</b> - the client/data generator, thereby providing clients with plausible deniability for any 
                             claims to the individual made by external entities -  data curator/data consumer. The image on the right
                             depicts exactly how Local DP works in practice 
