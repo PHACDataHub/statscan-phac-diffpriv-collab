@@ -70,8 +70,14 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 60%;
+  width: 80%;
   transform: translate(-50%, -50%);
+}
+
+@media screen and (min-width: 1800px) {
+  .box {
+    width : 60%
+  }
 }
 
 .offsetBox {
@@ -161,6 +167,12 @@ body {
   color: gray;
   background-color: #00203f;
   position: relative;
+}
+
+@media screen and (max-width: 750px) {
+  .sidebaritem {
+    height : 15%;
+  } 
 }
 
 .selectedSideBarItem {
