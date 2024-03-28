@@ -1,0 +1,33 @@
+# Directories to aggregate
+root_dirs: [
+    'Weight1_Prv_Results/Run_1',
+    'Weight1_Prv_Results/Run_2',
+    'Weight1_Prv_Results/Run_3',
+    'Weight1_Prv_Results/Run_4',
+    'Weight1_Prv_Results/Run_5'
+]
+
+# Epsilon for what results needs to be aggregated
+epsilon: '3.0'
+# 3.0, 1.0, 0.8, 0.6
+
+# Filename for storing the absolute difference between the original query results vs
+# query results after applying DP
+gdp_query_results_filename : 'gdp_query_results_abs_diff.csv'
+ldp_query_results_filename : 'ldp_query_results_abs_diff.csv'
+sdp_query_results_filename : 'sdp_query_results_abs_diff.csv'
+
+# The folder where the aggregation results will be stored
+agg_results_dir: 'aggregated_results'
+
+# filename for storing the average absolute difference between the original query results vs
+# query results after applying DP
+gdp_average_df_filename: 'gdp_average_query_results.csv'
+ldp_average_df_filename: 'ldp_average_query_results.csv'
+sdp_average_df_filename: 'sdp_average_query_results.csv'
+
+# Type of differential privacy for identifying the columns
+gdp_type : 'gdp'
+ldp_type : 'ldp'
+sdp_type : 'sdp'
+
