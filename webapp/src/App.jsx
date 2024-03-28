@@ -123,7 +123,7 @@ const App = () => {
         let showQBox = 'block';
         let pageNoCopy = qboxRef.current.pageNo;
         const pages = Object.keys(pageNumbers);
-        const toWidths = pages.map((_,idx) => ((100*(idx)/(pages.length-1)).toString()+'%'));
+        const toWidths = pages.map((_,idx) => ((100*(idx)/(pages.length-2)).toString()+'%'));
         if(entry.target.classList.contains('page1') && entry.isIntersecting){
           toWidth = toWidths[0];
           showQBox = 'none';
