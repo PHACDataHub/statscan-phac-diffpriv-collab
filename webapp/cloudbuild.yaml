@@ -1,0 +1,29 @@
+steps:
+# Install NPM dependencies
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install', '--prefix', './webapp', '--only=dev']
+# Build the dist folder
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', '--prefix', './webapp', 'build']
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA', './webapp']
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA']
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - 'dp-react-app'
+  - '--image'
+  - 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA'
+  - '--region'
+  - 'northamerica-northeast2'
+  - '--port'
+  - '8080'
+  - '--allow-unauthenticated'
+images:
+- 'gcr.io/scx-01h2bf415bg0pxrf07c0yt49zx/dp-react-app:$COMMIT_SHA'
