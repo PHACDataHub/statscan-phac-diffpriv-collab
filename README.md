@@ -2,7 +2,7 @@
 <li>python experiment-environment/simulator.py</li>
 <li>python experiment-environment/simulator.py --config_file {file_path}</li>
 
-#### Various outputs along with the cofigurations used are present at: ***"experiment-environment/aggregation_tests/Aggregation_Prv_W_1"***
+#### Various outputs along with the cofigurations used are present at: ***"[experiment-environment/aggregation_tests/Aggregation_Prv_W_1](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/tree/main/experiment-environment/aggregation_tests/Aggregation_Prv_W_1)"***
 <br>
 <b>What is differential privacy?</b>
 
@@ -70,12 +70,23 @@ We utilized Statistics Canada’s Canadian Community Health Survey (CCHS) Public
 <b> Overview of the preprocessed data: </b>
 ![image](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/assets/46490790/0f974879-973b-4aa3-8c5f-04fffa029d18)
 
+<b> Example of general simulation pipeline: </b> 
+![image](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/assets/46490790/316311c3-c081-48a7-936f-61b4f54dc9ff)
+<br>
+<hr>
 
+### Experiment Phase
+<b> Parameters used: </b>
 
+![image](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/assets/46490790/8eab1247-9644-4e9a-9c16-06e80ed7debe)
 
+<b> Comparing province-wise mean height: </b>
+![image](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/assets/46490790/9d163e84-f78e-4632-ad02-397797689f48)
 
+<b> Comparing Counts of Daily Smokers in Provinces: </b>
+![image](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/assets/46490790/0459a065-dace-4df2-884f-6f30bf10e5df)
 
-
+#### For in-depth details checkout the document : "[PHAC - StatCan DP Research Report.pdf](https://github.com/PHACDataHub/statscan-phac-diffpriv-collab/blob/main/PHAC%20-%20StatCan%20DP%20Research%20Report.pdf)"
 
 
 
